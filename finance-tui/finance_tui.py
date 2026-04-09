@@ -1,40 +1,16 @@
 from __future__ import annotations
 
-import sqlite3
-from pathlib import Path
 from datetime import datetime
+from typing import Any
 
+import requests
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal, Vertical
 from textual.screen import ModalScreen
 from textual.widgets import Header, Footer, DataTable, Static, Input, Button, Collapsible
 
-
-DB_PATH = Path("finance.db")
-
-
-def get_connection() -> sqlite3.Connection:
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
-
-
-def init_db() -> None:
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute(
-        """
-        CREATE TABLE IF NOT EXISTS transactions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            date TEXT NOT NULL,
-            amount REAL NOT NULL,
-            category TEXT NOT NULL,
-            description TEXT NOT NULL
-        )
-        """
-    )
-    conn.commit()
-    conn.close()
+API_BASE_URL = "http://100.107.242.80:8000"
+REQUEST_TIMEOUT = 10
 
 
 def valid_date(value: str) -> bool:
@@ -70,6 +46,85 @@ def bucket_for_category(category: str) -> str:
     if c == "plati facturi":
         return "bills"
     return "other"
+
+
+class FinanceApiError(Exception):
+    pass
+
+
+class FinanceApiClient:
+    def __init__(self, base_url: str) -> None:
+        self.base_url = base_url.rstrip("/")
+        self.session = requests.Session()
+
+    def _request(self, method: str, path: str, **kwargs: Any) -> Any:
+        url = f"{self.base_url}{path}"
+        kwargs.setdefault("timeout", REQUEST_TIMEOUT)
+
+        try:
+            response = self.session.request(method, url, **kwargs)
+            response.raise_for_status()
+        except requests.exceptions.RequestException as exc:
+            detail = ""
+            try:
+                error_json = exc.response.json() if exc.response is not None else None
+                if isinstance(error_json, dict):
+                    if "detail" in error_json:
+                        detail = f" | {error_json['detail']}"
+                    elif "message" in error_json:
+                        detail = f" | {error_json['message']}"
+            except Exception:
+                pass
+            raise FinanceApiError(f"{method} {path} failed{detail}") from exc
+
+        if response.status_code == 204 or not response.content:
+            return None
+
+        try:
+            return response.json()
+        except ValueError as exc:
+            raise FinanceApiError(f"{method} {path} returned invalid JSON") from exc
+
+    def list_transactions(self, month: str = "", category: str = "") -> list[dict[str, Any]]:
+        params: dict[str, str] = {}
+
+        if month:
+            params["month"] = month
+        if category:
+            params["category"] = category
+
+        data = self._request("GET", "/transactions", params=params)
+        if not isinstance(data, list):
+            raise FinanceApiError("GET /transactions returned unexpected data")
+        return data
+
+    def get_summary(self, month: str = "", category: str = "") -> dict[str, float]:
+        params: dict[str, str] = {}
+
+        if month:
+            params["month"] = month
+        if category:
+            params["category"] = category
+
+        data = self._request("GET", "/transactions/summary", params=params)
+        if not isinstance(data, dict):
+            raise FinanceApiError("GET /transactions/summary returned unexpected data")
+        return data
+
+    def create_transaction(self, payload: dict[str, Any]) -> dict[str, Any]:
+        data = self._request("POST", "/transactions", json=payload)
+        if not isinstance(data, dict):
+            raise FinanceApiError("POST /transactions returned unexpected data")
+        return data
+
+    def update_transaction(self, transaction_id: int, payload: dict[str, Any]) -> dict[str, Any]:
+        data = self._request("PUT", f"/transactions/{transaction_id}", json=payload)
+        if not isinstance(data, dict):
+            raise FinanceApiError("PUT /transactions/{id} returned unexpected data")
+        return data
+
+    def delete_transaction(self, transaction_id: int) -> None:
+        self._request("DELETE", f"/transactions/{transaction_id}")
 
 
 class ConfirmDeleteScreen(ModalScreen[bool]):
@@ -116,42 +171,15 @@ class ConfirmDeleteScreen(ModalScreen[bool]):
 
 
 class SummaryBox(Static):
-    def update_summary(self, month_filter: str = "", category_filter: str = "") -> None:
-        conn = get_connection()
-        cur = conn.cursor()
-
-        where_clauses = []
-        params: list[str] = []
-
-        if month_filter:
-            where_clauses.append("substr(date, 1, 7) = ?")
-            params.append(month_filter)
-
-        if category_filter:
-            where_clauses.append("LOWER(category) LIKE ?")
-            params.append(f"%{category_filter.lower()}%")
-
-        where_sql = ""
-        if where_clauses:
-            where_sql = "WHERE " + " AND ".join(where_clauses)
-
-        cur.execute(
-            f"""
-            SELECT
-                COALESCE(SUM(amount), 0) AS current_income,
-                COALESCE(SUM(CASE WHEN LOWER(category) = 'income' THEN amount ELSE 0 END), 0) AS total_income,
-                COALESCE(SUM(CASE WHEN LOWER(category) != 'income' THEN ABS(amount) ELSE 0 END), 0) AS total_expenses
-            FROM transactions
-            {where_sql}
-            """,
-            params,
-        )
-        row = cur.fetchone()
-        conn.close()
-
-        current_income = float(row["current_income"])
-        total_income = float(row["total_income"])
-        total_expenses = float(row["total_expenses"])
+    def update_summary(self, api: FinanceApiClient, month_filter: str = "", category_filter: str = "") -> None:
+        try:
+            data = api.get_summary(month_filter, category_filter)
+            current_income = float(data.get("current_income", 0))
+            total_income = float(data.get("total_income", 0))
+            total_expenses = float(data.get("total_expenses", 0))
+        except FinanceApiError as exc:
+            self.update(f"API error\n\n{exc}")
+            return
 
         active_month = month_filter if month_filter else "all"
         active_category = category_filter if category_filter else "all"
@@ -297,6 +325,7 @@ class FinanceApp(App):
 
     def __init__(self) -> None:
         super().__init__()
+        self.api = FinanceApiClient(API_BASE_URL)
         self.editing_transaction_id: int | None = None
         self.table_order = ["table-income", "table-bank", "table-bills", "table-other"]
         self.last_active_table_id = "table-income"
@@ -347,7 +376,7 @@ class FinanceApp(App):
 
     def on_mount(self) -> None:
         self.title = "Finance Tracker"
-        self.sub_title = "Terminal UI"
+        self.sub_title = "API Client"
 
         for table_id in self.table_order:
             table = self.query_one(f"#{table_id}", DataTable)
@@ -373,50 +402,27 @@ class FinanceApp(App):
         category_filter = self.query_one("#filter-category", Input).value.strip()
         return month_filter, category_filter
 
-    def fetch_rows(self) -> list[sqlite3.Row]:
+    def fetch_rows(self) -> list[dict[str, Any]]:
         month_filter, category_filter = self.get_filters()
 
-        where_clauses = []
-        params: list[str] = []
+        if month_filter and not valid_month(month_filter):
+            self.notify("Month filter invalid. Use YYYY-MM", severity="error")
+            return []
 
-        if month_filter:
-            if not valid_month(month_filter):
-                self.notify("Month filter invalid. Use YYYY-MM", severity="error")
-                return []
-            where_clauses.append("substr(date, 1, 7) = ?")
-            params.append(month_filter)
+        try:
+            return self.api.list_transactions(month_filter, category_filter)
+        except FinanceApiError as exc:
+            self.notify(str(exc), severity="error")
+            return []
 
-        if category_filter:
-            where_clauses.append("LOWER(category) LIKE ?")
-            params.append(f"%{category_filter.lower()}%")
-
-        where_sql = ""
-        if where_clauses:
-            where_sql = "WHERE " + " AND ".join(where_clauses)
-
-        conn = get_connection()
-        cur = conn.cursor()
-        cur.execute(
-            f"""
-            SELECT id, date, amount, category, description
-            FROM transactions
-            {where_sql}
-            ORDER BY date DESC, id DESC
-            """,
-            params,
-        )
-        rows = cur.fetchall()
-        conn.close()
-        return rows
-
-    def set_group_title(self, group_id: str, base_title: str, rows: list[sqlite3.Row]) -> None:
+    def set_group_title(self, group_id: str, base_title: str, rows: list[dict[str, Any]]) -> None:
         total = sum(float(row["amount"]) for row in rows)
         count = len(rows)
         collapsible = self.query_one(f"#{group_id}", Collapsible)
         collapsible.title = f"{base_title} ({count}) | {total:.2f} RON"
 
     def load_tables(self) -> None:
-        grouped = {
+        grouped: dict[str, list[dict[str, Any]]] = {
             "income": [],
             "bank": [],
             "bills": [],
@@ -424,7 +430,7 @@ class FinanceApp(App):
         }
 
         for row in self.fetch_rows():
-            grouped[bucket_for_category(row["category"])].append(row)
+            grouped[bucket_for_category(str(row["category"]))].append(row)
 
         mapping = {
             "table-income": grouped["income"],
@@ -441,10 +447,10 @@ class FinanceApp(App):
             for row in rows:
                 table.add_row(
                     str(row["id"]),
-                    row["date"],
-                    f"{row['amount']:.2f}",
-                    row["category"],
-                    row["description"],
+                    str(row["date"]),
+                    f"{float(row['amount']):.2f}",
+                    str(row["category"]),
+                    str(row["description"]),
                 )
 
         self.set_group_title("group-income", "Income", grouped["income"])
@@ -460,7 +466,7 @@ class FinanceApp(App):
 
     def update_summary(self) -> None:
         month_filter, category_filter = self.get_filters()
-        self.query_one("#summary", SummaryBox).update_summary(month_filter, category_filter)
+        self.query_one("#summary", SummaryBox).update_summary(self.api, month_filter, category_filter)
 
     def get_active_table(self) -> DataTable | None:
         for table_id in self.table_order:
@@ -539,28 +545,18 @@ class FinanceApp(App):
             self.notify("Select a row for edit", severity="warning")
             return
 
-        conn = get_connection()
-        cur = conn.cursor()
-        cur.execute(
-            """
-            SELECT id, date, amount, category, description
-            FROM transactions
-            WHERE id = ?
-            """,
-            (transaction_id,),
-        )
-        row = cur.fetchone()
-        conn.close()
+        rows = self.fetch_rows()
+        row = next((item for item in rows if int(item["id"]) == transaction_id), None)
 
         if row is None:
             self.notify("Transaction not found", severity="error")
             return
 
-        self.editing_transaction_id = row["id"]
-        self.query_one("#date", Input).value = row["date"]
+        self.editing_transaction_id = int(row["id"])
+        self.query_one("#date", Input).value = str(row["date"])
         self.query_one("#amount", Input).value = str(abs(float(row["amount"])))
-        self.query_one("#category", Input).value = row["category"]
-        self.query_one("#description", Input).value = row["description"]
+        self.query_one("#category", Input).value = str(row["category"])
+        self.query_one("#description", Input).value = str(row["description"])
         self.query_one("#form-title", Static).update(f"Edit transaction #{row['id']}")
         self.query_one("#amount", Input).focus()
         self.notify("Transaction loaded into form")
@@ -579,15 +575,10 @@ class FinanceApp(App):
                 self.notify("Delete cancelled")
                 return
 
-            conn = get_connection()
-            cur = conn.cursor()
-            cur.execute("DELETE FROM transactions WHERE id = ?", (transaction_id,))
-            deleted_rows = cur.rowcount
-            conn.commit()
-            conn.close()
-
-            if deleted_rows == 0:
-                self.notify("Transaction not found", severity="error")
+            try:
+                self.api.delete_transaction(transaction_id)
+            except FinanceApiError as exc:
+                self.notify(str(exc), severity="error")
                 return
 
             if self.editing_transaction_id == transaction_id:
@@ -628,44 +619,27 @@ class FinanceApp(App):
 
         amount = normalize_amount(category, raw_amount)
 
-        conn = get_connection()
-        cur = conn.cursor()
+        payload = {
+            "date": date_value,
+            "amount": amount,
+            "category": category,
+            "description": description,
+        }
 
-        if self.editing_transaction_id is None:
-            cur.execute(
-                """
-                INSERT INTO transactions (date, amount, category, description)
-                VALUES (?, ?, ?, ?)
-                """,
-                (date_value, amount, category, description),
-            )
-            conn.commit()
-            conn.close()
+        try:
+            if self.editing_transaction_id is None:
+                self.api.create_transaction(payload)
+                self.notify("Transaction saved")
+            else:
+                edited_id = self.editing_transaction_id
+                self.api.update_transaction(edited_id, payload)
+                self.notify(f"Transaction #{edited_id} updated")
+        except FinanceApiError as exc:
+            self.notify(str(exc), severity="error")
+            return
 
-            self.action_clear_form()
-            self.refresh_all()
-            self.notify("Transaction saved")
-        else:
-            cur.execute(
-                """
-                UPDATE transactions
-                SET date = ?, amount = ?, category = ?, description = ?
-                WHERE id = ?
-                """,
-                (date_value, amount, category, description, self.editing_transaction_id),
-            )
-            updated_rows = cur.rowcount
-            conn.commit()
-            conn.close()
-
-            if updated_rows == 0:
-                self.notify("Update failed", severity="error")
-                return
-
-            edited_id = self.editing_transaction_id
-            self.action_clear_form()
-            self.refresh_all()
-            self.notify(f"Transaction #{edited_id} updated")
+        self.action_clear_form()
+        self.refresh_all()
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id
@@ -700,6 +674,5 @@ class FinanceApp(App):
 
 
 if __name__ == "__main__":
-    init_db()
     app = FinanceApp()
     app.run()
