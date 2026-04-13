@@ -1,16 +1,19 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any
+from typing import Any, Optional
 
 import requests
+from rich.text import Text
 from textual.app import App, ComposeResult
+from textual.binding import Binding
 from textual.containers import Horizontal, Vertical
 from textual.screen import ModalScreen
-from textual.widgets import Header, Footer, DataTable, Static, Input, Button, Collapsible
+from textual.widgets import Button, Collapsible, DataTable, Footer, Header, Input, Static
 
-API_BASE_URL = "http://100.107.242.80:8000"
-REQUEST_TIMEOUT = 10
+API_BASE_URL = "http://100.115.250.45:8000"
+REQUEST_TIMEOUT = 15
+VALID_STATUSES = {"planned", "done"}
 
 
 def valid_date(value: str) -> bool:
@@ -36,9 +39,15 @@ def normalize_amount(category: str, amount: float) -> float:
     return -abs(amount)
 
 
+def normalize_status(status: str) -> str:
+    normalized = status.strip().lower()
+    if normalized not in VALID_STATUSES:
+        raise ValueError("Status must be planned or done")
+    return normalized
+
+
 def bucket_for_category(category: str) -> str:
     c = category.strip().lower()
-
     if c == "income":
         return "income"
     if c == "plati bancare":
@@ -46,6 +55,26 @@ def bucket_for_category(category: str) -> str:
     if c == "plati facturi":
         return "bills"
     return "other"
+
+
+def styled_amount(value: float, privacy: bool = False, status: str = "done") -> Text:
+    if privacy:
+        text = Text("****")
+        text.stylize("bold yellow")
+        return text
+
+    text = Text(f"{value:+.2f}")
+    if status == "planned":
+        text.stylize("dim yellow")
+    elif value >= 0:
+        text.stylize("bold green")
+    else:
+        text.stylize("bold red")
+    return text
+
+
+def masked_or_number(value: float, privacy: bool, decimals: int = 2) -> str:
+    return "****" if privacy else f"{value:.{decimals}f}"
 
 
 class FinanceApiError(Exception):
@@ -57,74 +86,93 @@ class FinanceApiClient:
         self.base_url = base_url.rstrip("/")
         self.session = requests.Session()
 
-    def _request(self, method: str, path: str, **kwargs: Any) -> Any:
+    def _request(self, method: str, path: str, **kwargs: Any) -> requests.Response:
         url = f"{self.base_url}{path}"
         kwargs.setdefault("timeout", REQUEST_TIMEOUT)
 
         try:
             response = self.session.request(method, url, **kwargs)
             response.raise_for_status()
+            return response
         except requests.exceptions.RequestException as exc:
             detail = ""
             try:
-                error_json = exc.response.json() if exc.response is not None else None
-                if isinstance(error_json, dict):
-                    if "detail" in error_json:
-                        detail = f" | {error_json['detail']}"
-                    elif "message" in error_json:
-                        detail = f" | {error_json['message']}"
+                if exc.response is not None:
+                    payload = exc.response.json()
+                    if isinstance(payload, dict):
+                        if "detail" in payload:
+                            detail = f": {payload['detail']}"
+                        elif "message" in payload:
+                            detail = f": {payload['message']}"
             except Exception:
                 pass
             raise FinanceApiError(f"{method} {path} failed{detail}") from exc
 
-        if response.status_code == 204 or not response.content:
-            return None
-
-        try:
-            return response.json()
-        except ValueError as exc:
-            raise FinanceApiError(f"{method} {path} returned invalid JSON") from exc
-
-    def list_transactions(self, month: str = "", category: str = "") -> list[dict[str, Any]]:
+    def list_transactions(
+        self,
+        month: str = "",
+        category: str = "",
+        status: str = "",
+    ) -> list[dict[str, Any]]:
         params: dict[str, str] = {}
-
         if month:
             params["month"] = month
         if category:
             params["category"] = category
+        if status:
+            params["status"] = status
 
-        data = self._request("GET", "/transactions", params=params)
+        response = self._request("GET", "/transactions", params=params)
+        data = response.json()
+
         if not isinstance(data, list):
             raise FinanceApiError("GET /transactions returned unexpected data")
         return data
 
-    def get_summary(self, month: str = "", category: str = "") -> dict[str, float]:
+    def get_summary(self, month: str = "", category: str = "") -> dict[str, Any]:
         params: dict[str, str] = {}
-
         if month:
             params["month"] = month
         if category:
             params["category"] = category
 
-        data = self._request("GET", "/transactions/summary", params=params)
+        response = self._request("GET", "/transactions/summary", params=params)
+        data = response.json()
+
         if not isinstance(data, dict):
             raise FinanceApiError("GET /transactions/summary returned unexpected data")
         return data
 
     def create_transaction(self, payload: dict[str, Any]) -> dict[str, Any]:
-        data = self._request("POST", "/transactions", json=payload)
+        response = self._request("POST", "/transactions", json=payload)
+        data = response.json()
+
         if not isinstance(data, dict):
             raise FinanceApiError("POST /transactions returned unexpected data")
         return data
 
     def update_transaction(self, transaction_id: int, payload: dict[str, Any]) -> dict[str, Any]:
-        data = self._request("PUT", f"/transactions/{transaction_id}", json=payload)
+        response = self._request("PUT", f"/transactions/{transaction_id}", json=payload)
+        data = response.json()
+
         if not isinstance(data, dict):
-            raise FinanceApiError("PUT /transactions/{id} returned unexpected data")
+            raise FinanceApiError("PUT /transactions returned unexpected data")
         return data
 
     def delete_transaction(self, transaction_id: int) -> None:
         self._request("DELETE", f"/transactions/{transaction_id}")
+
+    def get_top_descriptions(self, month: str = "", limit: int = 7) -> list[dict[str, Any]]:
+        params: dict[str, Any] = {"limit": limit}
+        if month:
+            params["month"] = month
+
+        response = self._request("GET", "/analytics/top-descriptions", params=params)
+        data = response.json()
+
+        if not isinstance(data, list):
+            raise FinanceApiError("GET /analytics/top-descriptions returned unexpected data")
+        return data
 
 
 class ConfirmDeleteScreen(ModalScreen[bool]):
@@ -171,15 +219,20 @@ class ConfirmDeleteScreen(ModalScreen[bool]):
 
 
 class SummaryBox(Static):
-    def update_summary(self, api: FinanceApiClient, month_filter: str = "", category_filter: str = "") -> None:
-        try:
-            data = api.get_summary(month_filter, category_filter)
-            current_income = float(data.get("current_income", 0))
-            total_income = float(data.get("total_income", 0))
-            total_expenses = float(data.get("total_expenses", 0))
-        except FinanceApiError as exc:
-            self.update(f"API error\n\n{exc}")
+    def update_summary(
+        self,
+        summary_data: dict[str, Any] | None,
+        month_filter: str,
+        category_filter: str,
+        privacy_mode: bool,
+    ) -> None:
+        if summary_data is None:
+            self.update("Summary\n\nNo data")
             return
+
+        current_balance = float(summary_data.get("current_income", 0))
+        total_income = float(summary_data.get("total_income", 0))
+        total_expenses = float(summary_data.get("total_expenses", 0))
 
         active_month = month_filter if month_filter else "all"
         active_category = category_filter if category_filter else "all"
@@ -189,15 +242,40 @@ class SummaryBox(Static):
                 [
                     "Summary",
                     "",
-                    f"Month:          {active_month}",
-                    f"Category:       {active_category}",
+                    f"Month:            {active_month}",
+                    f"Category:         {active_category}",
                     "",
-                    f"Income curent:  {current_income:.2f} RON",
-                    f"Venituri totale:{total_income:.2f} RON",
-                    f"Cheltuieli:     {total_expenses:.2f} RON",
+                    f"Buget actual:     {masked_or_number(current_balance, privacy_mode)} RON",
+                    f"Venituri totale:  {masked_or_number(total_income, privacy_mode)} RON",
+                    f"Cheltuieli:       {masked_or_number(total_expenses, privacy_mode)} RON",
                 ]
             )
         )
+
+
+class TopExpensesBox(Static):
+    def update_items(self, items: list[dict[str, Any]], privacy: bool) -> None:
+        lines = ["Top cheltuieli", ""]
+
+        if not items:
+            lines.append("No data")
+            self.update("\n".join(lines))
+            return
+
+        max_value = max(float(i["total_amount"]) for i in items)
+
+        for item in items:
+            desc = str(item["description"])[:14].ljust(14)
+            value = float(item["total_amount"])
+            count = int(item["count"])
+
+            bar_len = max(1, int((value / max_value) * 18)) if max_value > 0 else 0
+            bar = "█" * bar_len
+            val = "****" if privacy else f"{value:.0f}"
+
+            lines.append(f"{desc} {bar.ljust(18)} {val} ({count})")
+
+        self.update("\n".join(lines))
 
 
 class FinanceApp(App):
@@ -208,38 +286,47 @@ class FinanceApp(App):
         margin: 0;
     }
 
-    Header {
-        padding: 0;
-        margin: 0;
-    }
-
-    Footer {
+    Header, Footer {
         padding: 0;
         margin: 0;
     }
 
     #topbar {
         height: auto;
-        padding: 0 1 1 1;
+        padding: 0 1;
         border-bottom: solid $accent;
     }
 
     #topbar-title {
-        margin-bottom: 1;
+        height: 1;
+        margin: 0 0 1 0;
     }
 
     #filter-row {
         height: auto;
+        margin: 0 0 1 0;
     }
 
     #filter-month {
         width: 18;
+        height: 3;
         margin-right: 1;
     }
 
     #filter-category {
-        width: 20;
+        width: 18;
+        height: 3;
         margin-right: 1;
+    }
+
+    #apply-filters, #clear-filters, #toggle-privacy {
+        width: 10;
+        height: 3;
+        margin-right: 1;
+    }
+
+    #toggle-privacy {
+        margin-right: 0;
     }
 
     #main {
@@ -249,28 +336,36 @@ class FinanceApp(App):
     }
 
     #left {
-        width: 3fr;
-        padding: 0;
+        width: 4fr;
+        padding: 0 1 0 0;
         margin: 0;
         overflow-y: auto;
     }
 
     #right {
-        width: 34;
-        min-width: 34;
-        max-width: 34;
-        padding: 1 1 1 0;
+        width: 40;
+        min-width: 40;
+        max-width: 40;
+        padding: 1 1 0 0;
         margin: 0;
+        overflow-y: auto;
     }
 
     Collapsible {
-        margin: 0;
+        margin: 0 0 1 0;
         padding: 0;
-        border: none;
+        border: round $accent-darken-1;
+        background: $surface;
+    }
+
+    Collapsible > Contents {
+        padding: 0;
+        margin: 0;
     }
 
     .group-table {
-        height: 7;
+        height: auto;
+        min-height: 4;
         margin: 0;
         padding: 0;
         border: none;
@@ -280,55 +375,84 @@ class FinanceApp(App):
         margin: 0;
         padding: 0;
         border: none;
+        height: auto;
     }
 
-    #summary {
-        height: 10;
+    #top-expenses-box {
+        height: auto;
+        border: round $accent-darken-1;
+        padding: 1;
+        margin-top: 1;
+    }
+
+    .panel-box {
+        height: auto;
         border: round $accent;
         padding: 1;
         margin-bottom: 1;
     }
 
-    #form {
-        border: round $accent;
-        padding: 1;
+    .panel-title {
+        margin: 0 0 1 0;
+        text-style: bold;
     }
 
-    #form-title {
-        margin-bottom: 1;
+    #tx-date, #tx-category, #tx-amount, #tx-description, #tx-status {
+        height: 3;
+        margin: 0 0 1 0;
     }
 
-    Input {
-        margin-bottom: 1;
+    .button-row {
+        height: auto;
+        margin: 0 0 1 0;
     }
 
-    Button {
+    .button-row Button {
+        width: 1fr;
+        height: 3;
         margin-right: 1;
     }
 
-    #hint {
-        margin-top: 1;
+    .button-row Button:last-child {
+        margin-right: 0;
+    }
+
+    .hint {
+        margin: 0;
         color: $text-muted;
+        height: auto;
     }
     """
 
     BINDINGS = [
-        ("q", "quit", "Quit"),
-        ("r", "refresh_data", "Refresh"),
-        ("a", "new_transaction", "New"),
-        ("e", "edit_selected", "Edit"),
-        ("d", "delete_selected", "Delete"),
-        ("j", "next_section", "Next section"),
-        ("k", "prev_section", "Prev section"),
-        ("escape", "clear_form", "Clear form"),
+        Binding("q", "quit", "Quit"),
+        Binding("r", "refresh_data", "Refresh"),
+        Binding("a", "focus_transaction_form", "Tx form"),
+        Binding("e,enter", "edit_selected", "Edit"),
+        Binding("d", "delete_selected", "Delete"),
+        Binding("j", "next_section", "Next section"),
+        Binding("k", "prev_section", "Prev section"),
+        Binding("escape", "clear_form", "Clear form"),
+        Binding("/", "focus_month_filter", "Month filter"),
+        Binding("f", "focus_category_filter", "Category filter"),
+        Binding("v", "toggle_privacy", "Privacy"),
     ]
 
     def __init__(self) -> None:
         super().__init__()
         self.api = FinanceApiClient(API_BASE_URL)
-        self.editing_transaction_id: int | None = None
-        self.table_order = ["table-income", "table-bank", "table-bills", "table-other"]
+        self.editing_transaction_id: Optional[int] = None
+        self.table_order = [
+            "table-income",
+            "table-bank",
+            "table-bills",
+            "table-other",
+        ]
         self.last_active_table_id = "table-income"
+        self.last_selected_transaction_id: Optional[int] = None
+        self.cached_rows: list[dict[str, Any]] = []
+        self.cached_top_expenses: list[dict[str, Any]] = []
+        self.privacy_mode = False
 
     def compose(self) -> ComposeResult:
         yield Header(show_clock=True)
@@ -340,6 +464,7 @@ class FinanceApp(App):
                 yield Input(placeholder="Category", id="filter-category")
                 yield Button("Apply", id="apply-filters")
                 yield Button("Clear", id="clear-filters")
+                yield Button("Privacy", id="toggle-privacy")
 
         with Horizontal(id="main"):
             with Vertical(id="left"):
@@ -355,22 +480,26 @@ class FinanceApp(App):
                 with Collapsible(title="Alte cheltuieli", collapsed=False, id="group-other"):
                     yield DataTable(id="table-other", classes="group-table")
 
-            with Vertical(id="right"):
-                yield SummaryBox(id="summary")
+                with Collapsible(title="Top cheltuieli", collapsed=False, id="group-top-expenses"):
+                    yield TopExpensesBox(id="top-expenses-box")
 
-                with Vertical(id="form"):
-                    yield Static("Add transaction", id="form-title")
-                    yield Input(placeholder="Date YYYY-MM-DD", id="date")
-                    yield Input(placeholder="Amount", id="amount")
-                    yield Input(placeholder="Category", id="category")
-                    yield Input(placeholder="Description", id="description")
-                    with Horizontal():
-                        yield Button("Save", id="save")
-                        yield Button("Clear Form", id="clear-form-button")
-                    yield Static(
-                        "a = new | e = edit | d = delete | j/k = section | Enter = save | Esc = clear",
-                        id="hint",
+            with Vertical(id="right"):
+                yield SummaryBox(id="summary", classes="panel-box")
+
+                with Vertical(classes="panel-box"):
+                    yield Static("Add transaction", classes="panel-title")
+                    yield Input(placeholder="Date YYYY-MM-DD", id="tx-date")
+                    yield Input(
+                        placeholder="Category: income / plati bancare / plati facturi / alte cheltuieli",
+                        id="tx-category",
                     )
+                    yield Input(placeholder="Amount", id="tx-amount")
+                    yield Input(placeholder="Description", id="tx-description")
+                    yield Input(placeholder="Status: planned / done", id="tx-status")
+                    with Horizontal(classes="button-row"):
+                        yield Button("Save", id="save-transaction")
+                        yield Button("Clear", id="clear-transaction")
+                    yield Static("Planned rows are visible but excluded from totals", classes="hint")
 
         yield Footer()
 
@@ -382,11 +511,17 @@ class FinanceApp(App):
             table = self.query_one(f"#{table_id}", DataTable)
             table.cursor_type = "row"
             table.zebra_stripes = True
-            table.add_columns("ID", "Date", "Amount", "Category", "Description")
+            table.add_columns("ID", "Date", "Amount", "Status", "Description")
 
-        self.action_clear_form()
+        self.clear_transaction_form()
         self.refresh_all()
         self.focus_table("table-income")
+
+    def get_filters(self) -> tuple[str, str]:
+        return (
+            self.query_one("#filter-month", Input).value.strip(),
+            self.query_one("#filter-category", Input).value.strip(),
+        )
 
     def focus_table(self, table_id: str) -> None:
         table = self.query_one(f"#{table_id}", DataTable)
@@ -397,10 +532,21 @@ class FinanceApp(App):
         if isinstance(event.control, DataTable):
             self.last_active_table_id = event.control.id or self.last_active_table_id
 
-    def get_filters(self) -> tuple[str, str]:
-        month_filter = self.query_one("#filter-month", Input).value.strip()
-        category_filter = self.query_one("#filter-category", Input).value.strip()
-        return month_filter, category_filter
+    def action_focus_month_filter(self) -> None:
+        self.query_one("#filter-month", Input).focus()
+
+    def action_focus_category_filter(self) -> None:
+        self.query_one("#filter-category", Input).focus()
+
+    def action_focus_transaction_form(self) -> None:
+        self.query_one("#tx-date", Input).focus()
+
+    def action_toggle_privacy(self) -> None:
+        self.privacy_mode = not self.privacy_mode
+        self.load_tables()
+        self.update_summary()
+        self.update_top_expenses_panel()
+        self.notify("Privacy enabled" if self.privacy_mode else "Privacy disabled")
 
     def fetch_rows(self) -> list[dict[str, Any]]:
         month_filter, category_filter = self.get_filters()
@@ -410,26 +556,50 @@ class FinanceApp(App):
             return []
 
         try:
-            return self.api.list_transactions(month_filter, category_filter)
+            rows = self.api.list_transactions(month_filter, category_filter)
+            self.cached_rows = rows
+            return rows
         except FinanceApiError as exc:
             self.notify(str(exc), severity="error")
+            self.cached_rows = []
+            return []
+
+    def fetch_summary(self) -> dict[str, Any] | None:
+        month_filter, category_filter = self.get_filters()
+        try:
+            return self.api.get_summary(month_filter, category_filter)
+        except FinanceApiError as exc:
+            self.notify(str(exc), severity="error")
+            return None
+
+    def fetch_top_expenses(self) -> list[dict[str, Any]]:
+        month_filter, _ = self.get_filters()
+
+        try:
+            items = self.api.get_top_descriptions(month_filter, limit=7)
+            self.cached_top_expenses = items
+            return items
+        except FinanceApiError as exc:
+            self.notify(str(exc), severity="error")
+            self.cached_top_expenses = []
             return []
 
     def set_group_title(self, group_id: str, base_title: str, rows: list[dict[str, Any]]) -> None:
-        total = sum(float(row["amount"]) for row in rows)
-        count = len(rows)
+        done_rows = [row for row in rows if str(row.get("status", "done")).lower() == "done"]
+        total = sum(float(row["amount"]) for row in done_rows)
         collapsible = self.query_one(f"#{group_id}", Collapsible)
-        collapsible.title = f"{base_title} ({count}) | {total:.2f} RON"
+        total_label = "****" if self.privacy_mode else f"{total:.2f}"
+        collapsible.title = f"{base_title}   {len(rows)}   {total_label} RON"
 
     def load_tables(self) -> None:
-        grouped: dict[str, list[dict[str, Any]]] = {
+        grouped = {
             "income": [],
             "bank": [],
             "bills": [],
             "other": [],
         }
 
-        for row in self.fetch_rows():
+        for row in self.cached_rows:
             grouped[bucket_for_category(str(row["category"]))].append(row)
 
         mapping = {
@@ -442,14 +612,20 @@ class FinanceApp(App):
         for table_id, rows in mapping.items():
             table = self.query_one(f"#{table_id}", DataTable)
             table.clear(columns=True)
-            table.add_columns("ID", "Date", "Amount", "Category", "Description")
+            table.add_columns("ID", "Date", "Amount", "Status", "Description")
+
+            if not rows:
+                table.add_row("", "", "", "", "No transactions")
+                continue
 
             for row in rows:
+                amount = float(row["amount"])
+                status = str(row.get("status", "done")).lower()
                 table.add_row(
                     str(row["id"]),
                     str(row["date"]),
-                    f"{float(row['amount']):.2f}",
-                    str(row["category"]),
+                    styled_amount(amount, self.privacy_mode, status),
+                    status,
                     str(row["description"]),
                 )
 
@@ -458,65 +634,101 @@ class FinanceApp(App):
         self.set_group_title("group-bills", "Plăți facturi", grouped["bills"])
         self.set_group_title("group-other", "Alte cheltuieli", grouped["other"])
 
-    def refresh_all(self) -> None:
-        current_table = self.last_active_table_id
-        self.load_tables()
-        self.update_summary()
-        self.focus_table(current_table)
+    def update_top_expenses_panel(self) -> None:
+        self.query_one("#top-expenses-box", TopExpensesBox).update_items(
+            self.cached_top_expenses,
+            self.privacy_mode,
+        )
+
+    def restore_selection(self) -> None:
+        if self.last_selected_transaction_id is None:
+            return
+
+        for table_id in self.table_order:
+            table = self.query_one(f"#{table_id}", DataTable)
+            for row_index in range(table.row_count):
+                try:
+                    row = table.get_row_at(row_index)
+                    cell = str(row[0]).strip()
+                    if cell and int(cell) == self.last_selected_transaction_id:
+                        table.move_cursor(row=row_index, column=0)
+                        self.last_active_table_id = table_id
+                        return
+                except Exception:
+                    continue
 
     def update_summary(self) -> None:
         month_filter, category_filter = self.get_filters()
-        self.query_one("#summary", SummaryBox).update_summary(self.api, month_filter, category_filter)
+        summary_data = self.fetch_summary()
+        self.query_one("#summary", SummaryBox).update_summary(
+            summary_data,
+            month_filter,
+            category_filter,
+            self.privacy_mode,
+        )
 
-    def get_active_table(self) -> DataTable | None:
+    def refresh_all(self) -> None:
+        current_table = self.last_active_table_id
+        self.fetch_rows()
+        self.fetch_top_expenses()
+        self.load_tables()
+        self.update_summary()
+        self.update_top_expenses_panel()
+        self.focus_table(current_table if current_table in self.table_order else "table-income")
+        self.restore_selection()
+
+    def get_active_table(self) -> Optional[DataTable]:
         for table_id in self.table_order:
             table = self.query_one(f"#{table_id}", DataTable)
             if table.has_focus:
                 self.last_active_table_id = table_id
                 return table
-
         try:
             return self.query_one(f"#{self.last_active_table_id}", DataTable)
         except Exception:
             return None
 
-    def get_selected_transaction_id(self) -> int | None:
+    def get_selected_transaction_id(self) -> Optional[int]:
         table = self.get_active_table()
         if table is None or table.row_count == 0 or table.cursor_row is None:
             return None
 
         try:
             row = table.get_row_at(table.cursor_row)
-            return int(row[0])
+            cell = str(row[0]).strip()
+            if not cell:
+                return None
+            selected_id = int(cell)
+            self.last_selected_transaction_id = selected_id
+            return selected_id
         except Exception:
             return None
 
     def get_selected_transaction_label(self) -> str:
-        table = self.get_active_table()
-        if table is None or table.row_count == 0 or table.cursor_row is None:
+        transaction_id = self.get_selected_transaction_id()
+        if transaction_id is None:
             return "No transaction selected"
 
-        try:
-            row = table.get_row_at(table.cursor_row)
-            return f"#{row[0]} | {row[1]} | {row[2]} RON | {row[3]} | {row[4]}"
-        except Exception:
-            return "Selected transaction"
+        selected = next((row for row in self.cached_rows if int(row["id"]) == transaction_id), None)
+        if selected is None:
+            return "No transaction selected"
 
-    def clear_form_fields(self) -> None:
-        self.query_one("#date", Input).value = datetime.now().strftime("%Y-%m-%d")
-        self.query_one("#amount", Input).value = ""
-        self.query_one("#category", Input).value = ""
-        self.query_one("#description", Input).value = ""
+        return (
+            f"#{selected['id']} | {selected['date']} | "
+            f"{float(selected['amount']):.2f} RON | {selected['status']} | {selected['description']}"
+        )
+
+    def clear_transaction_form(self) -> None:
+        self.editing_transaction_id = None
+        self.query_one("#tx-date", Input).value = datetime.now().strftime("%Y-%m-%d")
+        self.query_one("#tx-category", Input).value = ""
+        self.query_one("#tx-amount", Input).value = ""
+        self.query_one("#tx-description", Input).value = ""
+        self.query_one("#tx-status", Input).value = "done"
 
     def action_clear_form(self) -> None:
-        self.editing_transaction_id = None
-        self.query_one("#form-title", Static).update("Add transaction")
-        self.clear_form_fields()
-
-    def action_new_transaction(self) -> None:
-        self.action_clear_form()
-        self.query_one("#amount", Input).focus()
-        self.notify("New transaction")
+        self.clear_transaction_form()
+        self.notify("Form cleared")
 
     def action_refresh_data(self) -> None:
         self.refresh_all()
@@ -540,30 +752,26 @@ class FinanceApp(App):
 
     def action_edit_selected(self) -> None:
         transaction_id = self.get_selected_transaction_id()
-
         if transaction_id is None:
             self.notify("Select a row for edit", severity="warning")
             return
 
-        rows = self.fetch_rows()
-        row = next((item for item in rows if int(item["id"]) == transaction_id), None)
-
+        row = next((item for item in self.cached_rows if int(item["id"]) == transaction_id), None)
         if row is None:
             self.notify("Transaction not found", severity="error")
             return
 
         self.editing_transaction_id = int(row["id"])
-        self.query_one("#date", Input).value = str(row["date"])
-        self.query_one("#amount", Input).value = str(abs(float(row["amount"])))
-        self.query_one("#category", Input).value = str(row["category"])
-        self.query_one("#description", Input).value = str(row["description"])
-        self.query_one("#form-title", Static).update(f"Edit transaction #{row['id']}")
-        self.query_one("#amount", Input).focus()
-        self.notify("Transaction loaded into form")
+        self.query_one("#tx-date", Input).value = str(row["date"])
+        self.query_one("#tx-category", Input).value = str(row["category"])
+        self.query_one("#tx-amount", Input).value = str(abs(float(row["amount"])))
+        self.query_one("#tx-description", Input).value = str(row["description"])
+        self.query_one("#tx-status", Input).value = str(row.get("status", "done"))
+        self.query_one("#tx-date", Input).focus()
+        self.notify(f"Loaded #{row['id']} for edit")
 
     def action_delete_selected(self) -> None:
         transaction_id = self.get_selected_transaction_id()
-
         if transaction_id is None:
             self.notify("Select a row for delete", severity="warning")
             return
@@ -582,29 +790,26 @@ class FinanceApp(App):
                 return
 
             if self.editing_transaction_id == transaction_id:
-                self.action_clear_form()
+                self.clear_transaction_form()
 
+            self.last_selected_transaction_id = None
             self.refresh_all()
-            self.notify("Transaction deleted")
+            self.notify(f"Deleted transaction #{transaction_id}")
 
         self.push_screen(ConfirmDeleteScreen(label), after_confirm)
 
-    def save_form(self) -> None:
-        date_input = self.query_one("#date", Input)
-        amount_input = self.query_one("#amount", Input)
-        category_input = self.query_one("#category", Input)
-        description_input = self.query_one("#description", Input)
-
-        date_value = date_input.value.strip()
-        category = category_input.value.strip()
-        description = description_input.value.strip()
+    def save_transaction_form(self) -> None:
+        date_value = self.query_one("#tx-date", Input).value.strip()
+        category = self.query_one("#tx-category", Input).value.strip()
+        description = self.query_one("#tx-description", Input).value.strip()
+        status_value = self.query_one("#tx-status", Input).value.strip()
 
         if not valid_date(date_value):
             self.notify("Date invalid. Use YYYY-MM-DD", severity="error")
             return
 
         try:
-            raw_amount = float(amount_input.value.replace(",", ".").strip())
+            raw_amount = float(self.query_one("#tx-amount", Input).value.replace(",", ".").strip())
         except ValueError:
             self.notify("Amount invalid", severity="error")
             return
@@ -617,38 +822,41 @@ class FinanceApp(App):
             self.notify("Description is required", severity="error")
             return
 
-        amount = normalize_amount(category, raw_amount)
+        try:
+            status = normalize_status(status_value)
+        except ValueError as exc:
+            self.notify(str(exc), severity="error")
+            return
 
         payload = {
             "date": date_value,
-            "amount": amount,
+            "amount": normalize_amount(category, raw_amount),
             "category": category,
             "description": description,
+            "status": status,
         }
 
         try:
             if self.editing_transaction_id is None:
-                self.api.create_transaction(payload)
-                self.notify("Transaction saved")
+                created = self.api.create_transaction(payload)
+                self.last_selected_transaction_id = int(created["id"])
+                self.notify(f"Saved transaction #{created['id']}")
             else:
                 edited_id = self.editing_transaction_id
-                self.api.update_transaction(edited_id, payload)
-                self.notify(f"Transaction #{edited_id} updated")
+                updated = self.api.update_transaction(edited_id, payload)
+                self.last_selected_transaction_id = int(updated["id"])
+                self.notify(f"Updated transaction #{edited_id}")
         except FinanceApiError as exc:
             self.notify(str(exc), severity="error")
             return
 
-        self.action_clear_form()
+        self.clear_transaction_form()
         self.refresh_all()
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id
 
-        if button_id == "save":
-            self.save_form()
-        elif button_id == "clear-form-button":
-            self.action_clear_form()
-        elif button_id == "apply-filters":
+        if button_id == "apply-filters":
             month_filter = self.query_one("#filter-month", Input).value.strip()
             if month_filter and not valid_month(month_filter):
                 self.notify("Month filter invalid. Use YYYY-MM", severity="error")
@@ -660,11 +868,27 @@ class FinanceApp(App):
             self.query_one("#filter-category", Input).value = ""
             self.refresh_all()
             self.notify("Filters cleared")
+        elif button_id == "toggle-privacy":
+            self.action_toggle_privacy()
+        elif button_id == "save-transaction":
+            self.save_transaction_form()
+        elif button_id == "clear-transaction":
+            self.clear_transaction_form()
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
-        if event.input.id in {"date", "amount", "category", "description"}:
-            self.save_form()
-        elif event.input.id in {"filter-month", "filter-category"}:
+        input_id = event.input.id
+
+        if input_id == "tx-date":
+            self.query_one("#tx-category", Input).focus()
+        elif input_id == "tx-category":
+            self.query_one("#tx-amount", Input).focus()
+        elif input_id == "tx-amount":
+            self.query_one("#tx-description", Input).focus()
+        elif input_id == "tx-description":
+            self.query_one("#tx-status", Input).focus()
+        elif input_id == "tx-status":
+            self.save_transaction_form()
+        elif input_id in {"filter-month", "filter-category"}:
             month_filter = self.query_one("#filter-month", Input).value.strip()
             if month_filter and not valid_month(month_filter):
                 self.notify("Month filter invalid. Use YYYY-MM", severity="error")
