@@ -13,6 +13,7 @@ from textual.widgets import Button, Collapsible, DataTable, Footer, Header, Inpu
 
 API_BASE_URL = "http://100.115.250.45:8000"
 REQUEST_TIMEOUT = 15
+VALID_STATUSES = {"planned", "done"}
 
 
 def valid_date(value: str) -> bool:
@@ -38,6 +39,13 @@ def normalize_amount(category: str, amount: float) -> float:
     return -abs(amount)
 
 
+def normalize_status(status: str) -> str:
+    normalized = status.strip().lower()
+    if normalized not in VALID_STATUSES:
+        raise ValueError("Status must be planned or done")
+    return normalized
+
+
 def bucket_for_category(category: str) -> str:
     c = category.strip().lower()
     if c == "income":
@@ -49,14 +57,16 @@ def bucket_for_category(category: str) -> str:
     return "other"
 
 
-def styled_amount(value: float, privacy: bool = False) -> Text:
+def styled_amount(value: float, privacy: bool = False, status: str = "done") -> Text:
     if privacy:
         text = Text("****")
         text.stylize("bold yellow")
         return text
 
     text = Text(f"{value:+.2f}")
-    if value >= 0:
+    if status == "planned":
+        text.stylize("dim yellow")
+    elif value >= 0:
         text.stylize("bold green")
     else:
         text.stylize("bold red")
@@ -98,12 +108,19 @@ class FinanceApiClient:
                 pass
             raise FinanceApiError(f"{method} {path} failed{detail}") from exc
 
-    def list_transactions(self, month: str = "", category: str = "") -> list[dict[str, Any]]:
+    def list_transactions(
+        self,
+        month: str = "",
+        category: str = "",
+        status: str = "",
+    ) -> list[dict[str, Any]]:
         params: dict[str, str] = {}
         if month:
             params["month"] = month
         if category:
             params["category"] = category
+        if status:
+            params["status"] = status
 
         response = self._request("GET", "/transactions", params=params)
         data = response.json()
@@ -139,7 +156,7 @@ class FinanceApiClient:
         data = response.json()
 
         if not isinstance(data, dict):
-            raise FinanceApiError("PUT /transactions/{transaction_id} returned unexpected data")
+            raise FinanceApiError("PUT /transactions returned unexpected data")
         return data
 
     def delete_transaction(self, transaction_id: int) -> None:
@@ -380,7 +397,7 @@ class FinanceApp(App):
         text-style: bold;
     }
 
-    #tx-date, #tx-category, #tx-amount, #tx-description {
+    #tx-date, #tx-category, #tx-amount, #tx-description, #tx-status {
         height: 3;
         margin: 0 0 1 0;
     }
@@ -478,10 +495,11 @@ class FinanceApp(App):
                     )
                     yield Input(placeholder="Amount", id="tx-amount")
                     yield Input(placeholder="Description", id="tx-description")
+                    yield Input(placeholder="Status: planned / done", id="tx-status")
                     with Horizontal(classes="button-row"):
                         yield Button("Save", id="save-transaction")
                         yield Button("Clear", id="clear-transaction")
-                    yield Static("Top cheltuieli uses exact alte cheltuieli descriptions", classes="hint")
+                    yield Static("Planned rows are visible but excluded from totals", classes="hint")
 
         yield Footer()
 
@@ -493,7 +511,7 @@ class FinanceApp(App):
             table = self.query_one(f"#{table_id}", DataTable)
             table.cursor_type = "row"
             table.zebra_stripes = True
-            table.add_columns("ID", "Date", "Amount", "Description")
+            table.add_columns("ID", "Date", "Amount", "Status", "Description")
 
         self.clear_transaction_form()
         self.refresh_all()
@@ -567,7 +585,8 @@ class FinanceApp(App):
             return []
 
     def set_group_title(self, group_id: str, base_title: str, rows: list[dict[str, Any]]) -> None:
-        total = sum(float(row["amount"]) for row in rows)
+        done_rows = [row for row in rows if str(row.get("status", "done")).lower() == "done"]
+        total = sum(float(row["amount"]) for row in done_rows)
         collapsible = self.query_one(f"#{group_id}", Collapsible)
         total_label = "****" if self.privacy_mode else f"{total:.2f}"
         collapsible.title = f"{base_title}   {len(rows)}   {total_label} RON"
@@ -593,18 +612,20 @@ class FinanceApp(App):
         for table_id, rows in mapping.items():
             table = self.query_one(f"#{table_id}", DataTable)
             table.clear(columns=True)
-            table.add_columns("ID", "Date", "Amount", "Description")
+            table.add_columns("ID", "Date", "Amount", "Status", "Description")
 
             if not rows:
-                table.add_row("", "", "", "No transactions")
+                table.add_row("", "", "", "", "No transactions")
                 continue
 
             for row in rows:
                 amount = float(row["amount"])
+                status = str(row.get("status", "done")).lower()
                 table.add_row(
                     str(row["id"]),
                     str(row["date"]),
-                    styled_amount(amount, self.privacy_mode),
+                    styled_amount(amount, self.privacy_mode, status),
+                    status,
                     str(row["description"]),
                 )
 
@@ -694,7 +715,7 @@ class FinanceApp(App):
 
         return (
             f"#{selected['id']} | {selected['date']} | "
-            f"{float(selected['amount']):.2f} RON | {selected['description']}"
+            f"{float(selected['amount']):.2f} RON | {selected['status']} | {selected['description']}"
         )
 
     def clear_transaction_form(self) -> None:
@@ -703,6 +724,7 @@ class FinanceApp(App):
         self.query_one("#tx-category", Input).value = ""
         self.query_one("#tx-amount", Input).value = ""
         self.query_one("#tx-description", Input).value = ""
+        self.query_one("#tx-status", Input).value = "done"
 
     def action_clear_form(self) -> None:
         self.clear_transaction_form()
@@ -744,6 +766,7 @@ class FinanceApp(App):
         self.query_one("#tx-category", Input).value = str(row["category"])
         self.query_one("#tx-amount", Input).value = str(abs(float(row["amount"])))
         self.query_one("#tx-description", Input).value = str(row["description"])
+        self.query_one("#tx-status", Input).value = str(row.get("status", "done"))
         self.query_one("#tx-date", Input).focus()
         self.notify(f"Loaded #{row['id']} for edit")
 
@@ -779,6 +802,7 @@ class FinanceApp(App):
         date_value = self.query_one("#tx-date", Input).value.strip()
         category = self.query_one("#tx-category", Input).value.strip()
         description = self.query_one("#tx-description", Input).value.strip()
+        status_value = self.query_one("#tx-status", Input).value.strip()
 
         if not valid_date(date_value):
             self.notify("Date invalid. Use YYYY-MM-DD", severity="error")
@@ -798,11 +822,18 @@ class FinanceApp(App):
             self.notify("Description is required", severity="error")
             return
 
+        try:
+            status = normalize_status(status_value)
+        except ValueError as exc:
+            self.notify(str(exc), severity="error")
+            return
+
         payload = {
             "date": date_value,
             "amount": normalize_amount(category, raw_amount),
             "category": category,
             "description": description,
+            "status": status,
         }
 
         try:
@@ -854,6 +885,8 @@ class FinanceApp(App):
         elif input_id == "tx-amount":
             self.query_one("#tx-description", Input).focus()
         elif input_id == "tx-description":
+            self.query_one("#tx-status", Input).focus()
+        elif input_id == "tx-status":
             self.save_transaction_form()
         elif input_id in {"filter-month", "filter-category"}:
             month_filter = self.query_one("#filter-month", Input).value.strip()
