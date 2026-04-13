@@ -11,9 +11,8 @@ from textual.containers import Horizontal, Vertical
 from textual.screen import ModalScreen
 from textual.widgets import Button, Collapsible, DataTable, Footer, Header, Input, Static
 
-API_BASE_URL = "http://100.107.242.80:8000"
-REQUEST_TIMEOUT = 10
-LENDERS = {"ING", "BT", "BCR", "TBI", "OTHER"}
+API_BASE_URL = "http://100.115.250.45:8000"
+REQUEST_TIMEOUT = 15
 
 
 def valid_date(value: str) -> bool:
@@ -77,13 +76,14 @@ class FinanceApiClient:
         self.base_url = base_url.rstrip("/")
         self.session = requests.Session()
 
-    def _request(self, method: str, path: str, **kwargs: Any) -> Any:
+    def _request(self, method: str, path: str, **kwargs: Any) -> requests.Response:
         url = f"{self.base_url}{path}"
         kwargs.setdefault("timeout", REQUEST_TIMEOUT)
 
         try:
             response = self.session.request(method, url, **kwargs)
             response.raise_for_status()
+            return response
         except requests.exceptions.RequestException as exc:
             detail = ""
             try:
@@ -98,21 +98,16 @@ class FinanceApiClient:
                 pass
             raise FinanceApiError(f"{method} {path} failed{detail}") from exc
 
-        if response.status_code == 204 or not response.content:
-            return None
-
-        try:
-            return response.json()
-        except ValueError as exc:
-            raise FinanceApiError(f"{method} {path} returned invalid JSON") from exc
-
     def list_transactions(self, month: str = "", category: str = "") -> list[dict[str, Any]]:
         params: dict[str, str] = {}
         if month:
             params["month"] = month
         if category:
             params["category"] = category
-        data = self._request("GET", "/transactions", params=params)
+
+        response = self._request("GET", "/transactions", params=params)
+        data = response.json()
+
         if not isinstance(data, list):
             raise FinanceApiError("GET /transactions returned unexpected data")
         return data
@@ -123,19 +118,26 @@ class FinanceApiClient:
             params["month"] = month
         if category:
             params["category"] = category
-        data = self._request("GET", "/transactions/summary", params=params)
+
+        response = self._request("GET", "/transactions/summary", params=params)
+        data = response.json()
+
         if not isinstance(data, dict):
             raise FinanceApiError("GET /transactions/summary returned unexpected data")
         return data
 
     def create_transaction(self, payload: dict[str, Any]) -> dict[str, Any]:
-        data = self._request("POST", "/transactions", json=payload)
+        response = self._request("POST", "/transactions", json=payload)
+        data = response.json()
+
         if not isinstance(data, dict):
             raise FinanceApiError("POST /transactions returned unexpected data")
         return data
 
     def update_transaction(self, transaction_id: int, payload: dict[str, Any]) -> dict[str, Any]:
-        data = self._request("PUT", f"/transactions/{transaction_id}", json=payload)
+        response = self._request("PUT", f"/transactions/{transaction_id}", json=payload)
+        data = response.json()
+
         if not isinstance(data, dict):
             raise FinanceApiError("PUT /transactions/{transaction_id} returned unexpected data")
         return data
@@ -143,28 +145,16 @@ class FinanceApiClient:
     def delete_transaction(self, transaction_id: int) -> None:
         self._request("DELETE", f"/transactions/{transaction_id}")
 
-    def list_debts(self) -> list[dict[str, Any]]:
-        data = self._request("GET", "/debts")
+    def get_top_descriptions(self, month: str = "", limit: int = 7) -> list[dict[str, Any]]:
+        params: dict[str, Any] = {"limit": limit}
+        if month:
+            params["month"] = month
+
+        response = self._request("GET", "/analytics/top-descriptions", params=params)
+        data = response.json()
+
         if not isinstance(data, list):
-            raise FinanceApiError("GET /debts returned unexpected data")
-        return data
-
-    def get_debt_snapshot(self) -> dict[str, Any]:
-        data = self._request("GET", "/debts/snapshot")
-        if not isinstance(data, dict):
-            raise FinanceApiError("GET /debts/snapshot returned unexpected data")
-        return data
-
-    def create_debt(self, payload: dict[str, Any]) -> dict[str, Any]:
-        data = self._request("POST", "/debts", json=payload)
-        if not isinstance(data, dict):
-            raise FinanceApiError("POST /debts returned unexpected data")
-        return data
-
-    def create_debt_payment(self, debt_id: int, payload: dict[str, Any]) -> dict[str, Any]:
-        data = self._request("POST", f"/debts/{debt_id}/payments", json=payload)
-        if not isinstance(data, dict):
-            raise FinanceApiError("POST /debts/{debt_id}/payments returned unexpected data")
+            raise FinanceApiError("GET /analytics/top-descriptions returned unexpected data")
         return data
 
 
@@ -246,33 +236,29 @@ class SummaryBox(Static):
         )
 
 
-class DebtSnapshotBox(Static):
-    def update_snapshot(self, snapshot: dict[str, Any] | None, privacy_mode: bool) -> None:
-        if snapshot is None:
-            self.update("Debt snapshot\n\nNo data")
+class TopExpensesBox(Static):
+    def update_items(self, items: list[dict[str, Any]], privacy: bool) -> None:
+        lines = ["Top cheltuieli", ""]
+
+        if not items:
+            lines.append("No data")
+            self.update("\n".join(lines))
             return
 
-        total_remaining = float(snapshot.get("total_remaining", 0))
-        active_debts = int(snapshot.get("active_debts", 0))
-        total_interest_paid = float(snapshot.get("total_interest_paid", 0))
-        largest_name = snapshot.get("largest_debt_name") or "-"
-        largest_remaining = float(snapshot.get("largest_debt_remaining", 0))
+        max_value = max(float(i["total_amount"]) for i in items)
 
-        self.update(
-            "\n".join(
-                [
-                    "Debt snapshot",
-                    "",
-                    f"Total remaining:  {masked_or_number(total_remaining, privacy_mode)}",
-                    f"Active debts:     {active_debts}",
-                    f"Interest paid:    {masked_or_number(total_interest_paid, privacy_mode)}",
-                    "",
-                    "Largest debt:",
-                    f"{largest_name}",
-                    f"{masked_or_number(largest_remaining, privacy_mode)} remaining",
-                ]
-            )
-        )
+        for item in items:
+            desc = str(item["description"])[:14].ljust(14)
+            value = float(item["total_amount"])
+            count = int(item["count"])
+
+            bar_len = max(1, int((value / max_value) * 18)) if max_value > 0 else 0
+            bar = "█" * bar_len
+            val = "****" if privacy else f"{value:.0f}"
+
+            lines.append(f"{desc} {bar.ljust(18)} {val} ({count})")
+
+        self.update("\n".join(lines))
 
 
 class FinanceApp(App):
@@ -375,6 +361,13 @@ class FinanceApp(App):
         height: auto;
     }
 
+    #top-expenses-box {
+        height: auto;
+        border: round $accent-darken-1;
+        padding: 1;
+        margin-top: 1;
+    }
+
     .panel-box {
         height: auto;
         border: round $accent;
@@ -387,9 +380,7 @@ class FinanceApp(App):
         text-style: bold;
     }
 
-    #tx-date, #tx-amount, #tx-category, #tx-description,
-    #debt-lender, #debt-name, #debt-original-amount,
-    #payment-debt-id, #payment-date, #payment-principal, #payment-interest, #payment-description {
+    #tx-date, #tx-category, #tx-amount, #tx-description {
         height: 3;
         margin: 0 0 1 0;
     }
@@ -420,13 +411,11 @@ class FinanceApp(App):
         Binding("q", "quit", "Quit"),
         Binding("r", "refresh_data", "Refresh"),
         Binding("a", "focus_transaction_form", "Tx form"),
-        Binding("w", "focus_debt_form", "Debt form"),
-        Binding("p", "focus_payment_form", "Pay debt"),
         Binding("e,enter", "edit_selected", "Edit"),
         Binding("d", "delete_selected", "Delete"),
         Binding("j", "next_section", "Next section"),
         Binding("k", "prev_section", "Prev section"),
-        Binding("escape", "clear_forms", "Clear forms"),
+        Binding("escape", "clear_form", "Clear form"),
         Binding("/", "focus_month_filter", "Month filter"),
         Binding("f", "focus_category_filter", "Category filter"),
         Binding("v", "toggle_privacy", "Privacy"),
@@ -441,12 +430,11 @@ class FinanceApp(App):
             "table-bank",
             "table-bills",
             "table-other",
-            "table-debts",
         ]
         self.last_active_table_id = "table-income"
         self.last_selected_transaction_id: Optional[int] = None
         self.cached_rows: list[dict[str, Any]] = []
-        self.cached_debts: list[dict[str, Any]] = []
+        self.cached_top_expenses: list[dict[str, Any]] = []
         self.privacy_mode = False
 
     def compose(self) -> ComposeResult:
@@ -475,10 +463,8 @@ class FinanceApp(App):
                 with Collapsible(title="Alte cheltuieli", collapsed=False, id="group-other"):
                     yield DataTable(id="table-other", classes="group-table")
 
-                with Collapsible(title="Datorii", collapsed=False, id="group-debts"):
-                    yield DataTable(id="table-debts", classes="group-table")
-
-                yield DebtSnapshotBox(id="debt-snapshot", classes="panel-box")
+                with Collapsible(title="Top cheltuieli", collapsed=False, id="group-top-expenses"):
+                    yield TopExpensesBox(id="top-expenses-box")
 
             with Vertical(id="right"):
                 yield SummaryBox(id="summary", classes="panel-box")
@@ -495,27 +481,7 @@ class FinanceApp(App):
                     with Horizontal(classes="button-row"):
                         yield Button("Save", id="save-transaction")
                         yield Button("Clear", id="clear-transaction")
-                    yield Static("Debt payments auto-create transactions with category: plati bancare", classes="hint")
-
-                with Vertical(classes="panel-box"):
-                    yield Static("Add debt", classes="panel-title")
-                    yield Input(placeholder="Lender: ING / BT / BCR / TBI / OTHER", id="debt-lender")
-                    yield Input(placeholder="Debt name", id="debt-name")
-                    yield Input(placeholder="Original amount", id="debt-original-amount")
-                    with Horizontal(classes="button-row"):
-                        yield Button("Create debt", id="save-debt")
-                    yield Static("Debt records are separate from transaction categories", classes="hint")
-
-                with Vertical(classes="panel-box"):
-                    yield Static("Debt payment", classes="panel-title")
-                    yield Input(placeholder="Debt ID", id="payment-debt-id")
-                    yield Input(placeholder="Date YYYY-MM-DD", id="payment-date")
-                    yield Input(placeholder="Principal paid", id="payment-principal")
-                    yield Input(placeholder="Interest paid", id="payment-interest")
-                    yield Input(placeholder="Description", id="payment-description")
-                    with Horizontal(classes="button-row"):
-                        yield Button("Save payment", id="save-debt-payment")
-                    yield Static("Creates matching plati bancare transaction", classes="hint")
+                    yield Static("Top cheltuieli uses exact alte cheltuieli descriptions", classes="hint")
 
         yield Footer()
 
@@ -523,20 +489,13 @@ class FinanceApp(App):
         self.title = "Finance Tracker"
         self.sub_title = "API Client"
 
-        for table_id in ["table-income", "table-bank", "table-bills", "table-other"]:
+        for table_id in self.table_order:
             table = self.query_one(f"#{table_id}", DataTable)
             table.cursor_type = "row"
             table.zebra_stripes = True
             table.add_columns("ID", "Date", "Amount", "Description")
 
-        debts_table = self.query_one("#table-debts", DataTable)
-        debts_table.cursor_type = "row"
-        debts_table.zebra_stripes = True
-        debts_table.add_columns("ID", "Lender", "Credit", "Sold rămas", "Principal", "Dobândă", "Ultima plată")
-
         self.clear_transaction_form()
-        self.clear_debt_form()
-        self.clear_payment_form()
         self.refresh_all()
         self.focus_table("table-income")
 
@@ -564,15 +523,11 @@ class FinanceApp(App):
     def action_focus_transaction_form(self) -> None:
         self.query_one("#tx-date", Input).focus()
 
-    def action_focus_debt_form(self) -> None:
-        self.query_one("#debt-lender", Input).focus()
-
-    def action_focus_payment_form(self) -> None:
-        self.query_one("#payment-debt-id", Input).focus()
-
     def action_toggle_privacy(self) -> None:
         self.privacy_mode = not self.privacy_mode
-        self.refresh_all()
+        self.load_tables()
+        self.update_summary()
+        self.update_top_expenses_panel()
         self.notify("Privacy enabled" if self.privacy_mode else "Privacy disabled")
 
     def fetch_rows(self) -> list[dict[str, Any]]:
@@ -599,22 +554,17 @@ class FinanceApp(App):
             self.notify(str(exc), severity="error")
             return None
 
-    def fetch_debts(self) -> list[dict[str, Any]]:
-        try:
-            debts = self.api.list_debts()
-            self.cached_debts = debts
-            return debts
-        except FinanceApiError as exc:
-            self.notify(str(exc), severity="error")
-            self.cached_debts = []
-            return []
+    def fetch_top_expenses(self) -> list[dict[str, Any]]:
+        month_filter, _ = self.get_filters()
 
-    def fetch_debt_snapshot(self) -> dict[str, Any] | None:
         try:
-            return self.api.get_debt_snapshot()
+            items = self.api.get_top_descriptions(month_filter, limit=7)
+            self.cached_top_expenses = items
+            return items
         except FinanceApiError as exc:
             self.notify(str(exc), severity="error")
-            return None
+            self.cached_top_expenses = []
+            return []
 
     def set_group_title(self, group_id: str, base_title: str, rows: list[dict[str, Any]]) -> None:
         total = sum(float(row["amount"]) for row in rows)
@@ -622,13 +572,7 @@ class FinanceApp(App):
         total_label = "****" if self.privacy_mode else f"{total:.2f}"
         collapsible.title = f"{base_title}   {len(rows)}   {total_label} RON"
 
-    def set_debt_group_title(self, rows: list[dict[str, Any]]) -> None:
-        total_remaining = sum(float(row["remaining_principal"]) for row in rows)
-        collapsible = self.query_one("#group-debts", Collapsible)
-        total_label = "****" if self.privacy_mode else f"{total_remaining:.2f}"
-        collapsible.title = f"Datorii   {len(rows)}   {total_label} RON"
-
-    def load_transaction_tables(self) -> None:
+    def load_tables(self) -> None:
         grouped = {
             "income": [],
             "bank": [],
@@ -636,7 +580,7 @@ class FinanceApp(App):
             "other": [],
         }
 
-        for row in self.fetch_rows():
+        for row in self.cached_rows:
             grouped[bucket_for_category(str(row["category"]))].append(row)
 
         mapping = {
@@ -669,44 +613,17 @@ class FinanceApp(App):
         self.set_group_title("group-bills", "Plăți facturi", grouped["bills"])
         self.set_group_title("group-other", "Alte cheltuieli", grouped["other"])
 
-    def load_debts_table(self) -> None:
-        rows = self.fetch_debts()
-        table = self.query_one("#table-debts", DataTable)
-        table.clear(columns=True)
-        table.add_columns("ID", "Lender", "Credit", "Sold rămas", "Principal", "Dobândă", "Ultima plată")
-
-        if not rows:
-            table.add_row("", "", "No debts", "", "", "", "")
-            self.set_debt_group_title([])
-            return
-
-        for row in rows:
-            remaining = float(row["remaining_principal"])
-            total_principal = float(row["total_principal_paid"])
-            total_interest = float(row["total_interest_paid"])
-            last_payment = row["last_payment_date"] or "-"
-
-            table.add_row(
-                str(row["id"]),
-                str(row["lender"]),
-                str(row["name"]),
-                "****" if self.privacy_mode else f"{remaining:.2f}",
-                "****" if self.privacy_mode else f"{total_principal:.2f}",
-                "****" if self.privacy_mode else f"{total_interest:.2f}",
-                str(last_payment),
-            )
-
-        self.set_debt_group_title(rows)
-
-    def update_debt_snapshot(self) -> None:
-        snapshot = self.fetch_debt_snapshot()
-        self.query_one("#debt-snapshot", DebtSnapshotBox).update_snapshot(snapshot, self.privacy_mode)
+    def update_top_expenses_panel(self) -> None:
+        self.query_one("#top-expenses-box", TopExpensesBox).update_items(
+            self.cached_top_expenses,
+            self.privacy_mode,
+        )
 
     def restore_selection(self) -> None:
         if self.last_selected_transaction_id is None:
             return
 
-        for table_id in ["table-income", "table-bank", "table-bills", "table-other"]:
+        for table_id in self.table_order:
             table = self.query_one(f"#{table_id}", DataTable)
             for row_index in range(table.row_count):
                 try:
@@ -731,10 +648,11 @@ class FinanceApp(App):
 
     def refresh_all(self) -> None:
         current_table = self.last_active_table_id
-        self.load_transaction_tables()
-        self.load_debts_table()
+        self.fetch_rows()
+        self.fetch_top_expenses()
+        self.load_tables()
         self.update_summary()
-        self.update_debt_snapshot()
+        self.update_top_expenses_panel()
         self.focus_table(current_table if current_table in self.table_order else "table-income")
         self.restore_selection()
 
@@ -750,9 +668,6 @@ class FinanceApp(App):
             return None
 
     def get_selected_transaction_id(self) -> Optional[int]:
-        if self.last_active_table_id == "table-debts":
-            return None
-
         table = self.get_active_table()
         if table is None or table.row_count == 0 or table.cursor_row is None:
             return None
@@ -789,23 +704,9 @@ class FinanceApp(App):
         self.query_one("#tx-amount", Input).value = ""
         self.query_one("#tx-description", Input).value = ""
 
-    def clear_debt_form(self) -> None:
-        self.query_one("#debt-lender", Input).value = ""
-        self.query_one("#debt-name", Input).value = ""
-        self.query_one("#debt-original-amount", Input).value = ""
-
-    def clear_payment_form(self) -> None:
-        self.query_one("#payment-debt-id", Input).value = ""
-        self.query_one("#payment-date", Input).value = datetime.now().strftime("%Y-%m-%d")
-        self.query_one("#payment-principal", Input).value = ""
-        self.query_one("#payment-interest", Input).value = ""
-        self.query_one("#payment-description", Input).value = ""
-
-    def action_clear_forms(self) -> None:
+    def action_clear_form(self) -> None:
         self.clear_transaction_form()
-        self.clear_debt_form()
-        self.clear_payment_form()
-        self.notify("Forms cleared")
+        self.notify("Form cleared")
 
     def action_refresh_data(self) -> None:
         self.refresh_all()
@@ -828,23 +729,6 @@ class FinanceApp(App):
         self.focus_table(self.table_order[(idx - 1) % len(self.table_order)])
 
     def action_edit_selected(self) -> None:
-        if self.last_active_table_id == "table-debts":
-            table = self.query_one("#table-debts", DataTable)
-            if table.cursor_row is None:
-                self.notify("Select a debt row first", severity="warning")
-                return
-            try:
-                row = table.get_row_at(table.cursor_row)
-                debt_id = str(row[0]).strip()
-                if debt_id:
-                    self.query_one("#payment-debt-id", Input).value = debt_id
-                    self.query_one("#payment-date", Input).focus()
-                    self.notify(f"Loaded debt #{debt_id} into payment form")
-                return
-            except Exception:
-                self.notify("Could not load debt row", severity="error")
-                return
-
         transaction_id = self.get_selected_transaction_id()
         if transaction_id is None:
             self.notify("Select a row for edit", severity="warning")
@@ -864,10 +748,6 @@ class FinanceApp(App):
         self.notify(f"Loaded #{row['id']} for edit")
 
     def action_delete_selected(self) -> None:
-        if self.last_active_table_id == "table-debts":
-            self.notify("Debt deletion is not implemented in this version", severity="warning")
-            return
-
         transaction_id = self.get_selected_transaction_id()
         if transaction_id is None:
             self.notify("Select a row for delete", severity="warning")
@@ -942,94 +822,6 @@ class FinanceApp(App):
         self.clear_transaction_form()
         self.refresh_all()
 
-    def save_debt_form(self) -> None:
-        lender = self.query_one("#debt-lender", Input).value.strip().upper()
-        name = self.query_one("#debt-name", Input).value.strip()
-        created_at = datetime.now().strftime("%Y-%m-%d")
-
-        if not lender:
-            self.notify("Lender is required", severity="error")
-            return
-
-        if lender not in LENDERS:
-            self.notify("Lender must be one of: ING, BT, BCR, TBI, OTHER", severity="error")
-            return
-
-        if not name:
-            self.notify("Debt name is required", severity="error")
-            return
-
-        try:
-            original_amount = float(self.query_one("#debt-original-amount", Input).value.replace(",", ".").strip())
-        except ValueError:
-            self.notify("Original amount invalid", severity="error")
-            return
-
-        payload = {
-            "lender": lender,
-            "name": name,
-            "original_amount": original_amount,
-            "created_at": created_at,
-        }
-
-        try:
-            debt = self.api.create_debt(payload)
-            self.notify(f"Created debt #{debt['id']} ({lender})")
-        except FinanceApiError as exc:
-            self.notify(str(exc), severity="error")
-            return
-
-        self.clear_debt_form()
-        self.refresh_all()
-
-    def save_payment_form(self) -> None:
-        debt_id_value = self.query_one("#payment-debt-id", Input).value.strip()
-        date_value = self.query_one("#payment-date", Input).value.strip()
-        description = self.query_one("#payment-description", Input).value.strip()
-
-        if not debt_id_value:
-            self.notify("Debt ID is required", severity="error")
-            return
-
-        try:
-            debt_id = int(debt_id_value)
-        except ValueError:
-            self.notify("Debt ID must be an integer", severity="error")
-            return
-
-        if not valid_date(date_value):
-            self.notify("Date invalid. Use YYYY-MM-DD", severity="error")
-            return
-
-        try:
-            principal_paid = float(self.query_one("#payment-principal", Input).value.replace(",", ".").strip() or "0")
-            interest_paid = float(self.query_one("#payment-interest", Input).value.replace(",", ".").strip() or "0")
-        except ValueError:
-            self.notify("Principal/interest values are invalid", severity="error")
-            return
-
-        if not description:
-            self.notify("Description is required", severity="error")
-            return
-
-        payload = {
-            "date": date_value,
-            "principal_paid": principal_paid,
-            "interest_paid": interest_paid,
-            "description": description,
-            "create_transaction": True,
-        }
-
-        try:
-            self.api.create_debt_payment(debt_id, payload)
-            self.notify(f"Saved payment for debt #{debt_id} in category plati bancare")
-        except FinanceApiError as exc:
-            self.notify(str(exc), severity="error")
-            return
-
-        self.clear_payment_form()
-        self.refresh_all()
-
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id
 
@@ -1051,10 +843,6 @@ class FinanceApp(App):
             self.save_transaction_form()
         elif button_id == "clear-transaction":
             self.clear_transaction_form()
-        elif button_id == "save-debt":
-            self.save_debt_form()
-        elif button_id == "save-debt-payment":
-            self.save_payment_form()
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
         input_id = event.input.id
@@ -1067,22 +855,6 @@ class FinanceApp(App):
             self.query_one("#tx-description", Input).focus()
         elif input_id == "tx-description":
             self.save_transaction_form()
-        elif input_id == "debt-lender":
-            self.query_one("#debt-name", Input).focus()
-        elif input_id == "debt-name":
-            self.query_one("#debt-original-amount", Input).focus()
-        elif input_id == "debt-original-amount":
-            self.save_debt_form()
-        elif input_id == "payment-debt-id":
-            self.query_one("#payment-date", Input).focus()
-        elif input_id == "payment-date":
-            self.query_one("#payment-principal", Input).focus()
-        elif input_id == "payment-principal":
-            self.query_one("#payment-interest", Input).focus()
-        elif input_id == "payment-interest":
-            self.query_one("#payment-description", Input).focus()
-        elif input_id == "payment-description":
-            self.save_payment_form()
         elif input_id in {"filter-month", "filter-category"}:
             month_filter = self.query_one("#filter-month", Input).value.strip()
             if month_filter and not valid_month(month_filter):
