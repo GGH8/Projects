@@ -1,0 +1,33 @@
+[
+    {
+        "id": 1,
+        "type": "single",
+        "question": "Which OSI layer is responsible for logical addressing and routing?",
+        "options": [
+            "Layer 1 - Physical",
+            "Layer 2 - Data Link",
+            "Layer 3 - Network",
+            "Layer 4 - Transport"
+        ],
+        "answer": [
+            2
+        ],
+        "explanation": "Layer 3, the Network layer, handles logical addressing and routing."
+    },
+    {
+        "id": 2,
+        "type": "multiple",
+        "question": "Which two protocols are used for dynamic routing? Choose two.",
+        "options": [
+            "OSPF",
+            "ARP",
+            "EIGRP",
+            "DHCP"
+        ],
+        "answer": [
+            0,
+            2
+        ],
+        "explanation": "OSPF and EIGRP are dynamic routing protocols."
+    }
+]

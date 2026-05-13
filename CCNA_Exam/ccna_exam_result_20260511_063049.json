@@ -1,0 +1,54 @@
+{
+    "exam": "CCNA 200-301 Simulator",
+    "submitted_at": "2026-05-11T06:30:49",
+    "total_questions": 2,
+    "correct": 2,
+    "incorrect": 0,
+    "unanswered": 0,
+    "score_percent": 100.0,
+    "duration_seconds_used": 21,
+    "results": [
+        {
+            "question_number": 1,
+            "question_id": 1,
+            "question": "Which OSI layer is responsible for logical addressing and routing?",
+            "status": "correct",
+            "user_answer_indexes": [
+                2
+            ],
+            "correct_answer_indexes": [
+                2
+            ],
+            "user_answer_text": [
+                "Layer 3 - Network"
+            ],
+            "correct_answer_text": [
+                "Layer 3 - Network"
+            ],
+            "explanation": "Layer 3, the Network layer, handles logical addressing and routing."
+        },
+        {
+            "question_number": 2,
+            "question_id": 2,
+            "question": "Which two protocols are used for dynamic routing? Choose two.",
+            "status": "correct",
+            "user_answer_indexes": [
+                0,
+                2
+            ],
+            "correct_answer_indexes": [
+                0,
+                2
+            ],
+            "user_answer_text": [
+                "OSPF",
+                "EIGRP"
+            ],
+            "correct_answer_text": [
+                "OSPF",
+                "EIGRP"
+            ],
+            "explanation": "OSPF and EIGRP are dynamic routing protocols."
+        }
+    ]
+}

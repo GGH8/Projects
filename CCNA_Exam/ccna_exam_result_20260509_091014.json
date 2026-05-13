@@ -1,0 +1,2032 @@
+{
+    "exam": "CCNA 200-301 Simulator",
+    "submitted_at": "2026-05-09T09:10:14",
+    "total_questions": 120,
+    "correct": 38,
+    "incorrect": 6,
+    "unanswered": 76,
+    "score_percent": 31.67,
+    "duration_seconds_used": 570,
+    "results": [
+        {
+            "question_number": 1,
+            "question_id": 940,
+            "question": "Practice item 940: Which command would you use to verify OSPF neighbors?",
+            "status": "correct",
+            "user_answer_indexes": [
+                0
+            ],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [
+                "show ip ospf neighbor"
+            ],
+            "correct_answer_text": [
+                "show ip ospf neighbor"
+            ],
+            "explanation": "show ip ospf neighbor shows OSPF adjacency state."
+        },
+        {
+            "question_number": 2,
+            "question_id": 349,
+            "question": "Practice item 349: What best describes Ansible in Automation and Programmability?",
+            "status": "correct",
+            "user_answer_indexes": [
+                0
+            ],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [
+                "automates configuration and orchestration"
+            ],
+            "correct_answer_text": [
+                "automates configuration and orchestration"
+            ],
+            "explanation": "Ansible automates configuration and orchestration."
+        },
+        {
+            "question_number": 3,
+            "question_id": 746,
+            "question": "Practice item 746: Which technology or concept provides applications or services to clients?",
+            "status": "correct",
+            "user_answer_indexes": [
+                1
+            ],
+            "correct_answer_indexes": [
+                1
+            ],
+            "user_answer_text": [
+                "server"
+            ],
+            "correct_answer_text": [
+                "server"
+            ],
+            "explanation": "The concept is server."
+        },
+        {
+            "question_number": 4,
+            "question_id": 256,
+            "question": "Practice item 256: Which command would you use to verify trunk interfaces?",
+            "status": "correct",
+            "user_answer_indexes": [
+                1
+            ],
+            "correct_answer_indexes": [
+                1
+            ],
+            "user_answer_text": [
+                "show interfaces trunk"
+            ],
+            "correct_answer_text": [
+                "show interfaces trunk"
+            ],
+            "explanation": "show interfaces trunk displays trunking status, native VLAN, and allowed VLANs."
+        },
+        {
+            "question_number": 5,
+            "question_id": 155,
+            "question": "In CCNA Security Fundamentals, what is the primary purpose of standard ACL?",
+            "status": "correct",
+            "user_answer_indexes": [
+                0
+            ],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [
+                "filters primarily by source IPv4 address"
+            ],
+            "correct_answer_text": [
+                "filters primarily by source IPv4 address"
+            ],
+            "explanation": "standard ACL filters primarily by source IPv4 address."
+        },
+        {
+            "question_number": 6,
+            "question_id": 453,
+            "question": "Practice item 453: Which two items belong to the IP Connectivity domain? Choose two.",
+            "status": "incorrect",
+            "user_answer_indexes": [
+                0,
+                3
+            ],
+            "correct_answer_indexes": [
+                1,
+                3
+            ],
+            "user_answer_text": [
+                "OSPF",
+                "longest prefix match"
+            ],
+            "correct_answer_text": [
+                "FIB",
+                "longest prefix match"
+            ],
+            "explanation": "FIB and longest prefix match are associated with IP Connectivity."
+        },
+        {
+            "question_number": 7,
+            "question_id": 125,
+            "question": "In CCNA IP Connectivity, what is the primary purpose of administrative distance?",
+            "status": "correct",
+            "user_answer_indexes": [
+                3
+            ],
+            "correct_answer_indexes": [
+                3
+            ],
+            "user_answer_text": [
+                "selects between routes from different sources"
+            ],
+            "correct_answer_text": [
+                "selects between routes from different sources"
+            ],
+            "explanation": "administrative distance selects between routes from different sources."
+        },
+        {
+            "question_number": 8,
+            "question_id": 33,
+            "question": "Which OSPF packet type is used to discover and maintain neighbors?",
+            "status": "correct",
+            "user_answer_indexes": [
+                0
+            ],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [
+                "Hello"
+            ],
+            "correct_answer_text": [
+                "Hello"
+            ],
+            "explanation": "OSPF Hello packets discover and maintain adjacencies."
+        },
+        {
+            "question_number": 9,
+            "question_id": 215,
+            "question": "A host can reach devices in its own subnet but not remote subnets. What should be checked first?",
+            "status": "correct",
+            "user_answer_indexes": [
+                0
+            ],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [
+                "Default gateway"
+            ],
+            "correct_answer_text": [
+                "Default gateway"
+            ],
+            "explanation": "The default gateway is required for off-subnet traffic."
+        },
+        {
+            "question_number": 10,
+            "question_id": 707,
+            "question": "Practice item 707: A user can ping 8.8.8.8 but cannot browse to www.example.com. Which service is most suspect?",
+            "status": "correct",
+            "user_answer_indexes": [
+                1
+            ],
+            "correct_answer_indexes": [
+                1
+            ],
+            "user_answer_text": [
+                "DNS"
+            ],
+            "correct_answer_text": [
+                "DNS"
+            ],
+            "explanation": "Successful IP connectivity but failed hostname access often points to DNS."
+        },
+        {
+            "question_number": 11,
+            "question_id": 378,
+            "question": "Practice item 378: A /30 IPv4 subnet has how many usable host addresses?",
+            "status": "incorrect",
+            "user_answer_indexes": [
+                1
+            ],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [
+                "4"
+            ],
+            "correct_answer_text": [
+                "2"
+            ],
+            "explanation": "/30 provides 2 usable IPv4 host addresses."
+        },
+        {
+            "question_number": 12,
+            "question_id": 6,
+            "question": "Which command displays the IPv4 routing table on Cisco IOS?",
+            "status": "correct",
+            "user_answer_indexes": [
+                0
+            ],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [
+                "show ip route"
+            ],
+            "correct_answer_text": [
+                "show ip route"
+            ],
+            "explanation": "show ip route displays the IPv4 routing table."
+        },
+        {
+            "question_number": 13,
+            "question_id": 901,
+            "question": "Practice item 901: What best describes floating static route in IP Connectivity?",
+            "status": "correct",
+            "user_answer_indexes": [
+                3
+            ],
+            "correct_answer_indexes": [
+                3
+            ],
+            "user_answer_text": [
+                "has a higher administrative distance for backup use"
+            ],
+            "correct_answer_text": [
+                "has a higher administrative distance for backup use"
+            ],
+            "explanation": "floating static route has a higher administrative distance for backup use."
+        },
+        {
+            "question_number": 14,
+            "question_id": 431,
+            "question": "Practice item 431: A trunk allows VLANs 10 and 20, but VLAN 30 traffic is not passing. What is the likely cause?",
+            "status": "correct",
+            "user_answer_indexes": [
+                0
+            ],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [
+                "VLAN 30 is not allowed on the trunk"
+            ],
+            "correct_answer_text": [
+                "VLAN 30 is not allowed on the trunk"
+            ],
+            "explanation": "Trunks only carry VLANs allowed on the trunk and existing on the switch."
+        },
+        {
+            "question_number": 15,
+            "question_id": 803,
+            "question": "Practice item 803: A NAT overload configuration exists but inside hosts cannot translate. What should be verified?",
+            "status": "correct",
+            "user_answer_indexes": [
+                3
+            ],
+            "correct_answer_indexes": [
+                3
+            ],
+            "user_answer_text": [
+                "Inside/outside NAT interface roles and ACL match"
+            ],
+            "correct_answer_text": [
+                "Inside/outside NAT interface roles and ACL match"
+            ],
+            "explanation": "PAT requires correct inside/outside designation and matching source ACL."
+        },
+        {
+            "question_number": 16,
+            "question_id": 911,
+            "question": "Practice item 911: A REST API request receives HTTP 401. What does this usually indicate?",
+            "status": "correct",
+            "user_answer_indexes": [
+                0
+            ],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [
+                "Authentication failed or missing credentials"
+            ],
+            "correct_answer_text": [
+                "Authentication failed or missing credentials"
+            ],
+            "explanation": "HTTP 401 indicates authentication is required or failed."
+        },
+        {
+            "question_number": 17,
+            "question_id": 961,
+            "question": "Practice item 961: What best describes REST API in Automation and Programmability?",
+            "status": "correct",
+            "user_answer_indexes": [
+                0
+            ],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [
+                "uses HTTP methods to access resources"
+            ],
+            "correct_answer_text": [
+                "uses HTTP methods to access resources"
+            ],
+            "explanation": "REST API uses HTTP methods to access resources."
+        },
+        {
+            "question_number": 18,
+            "question_id": 450,
+            "question": "Practice item 450: A /27 IPv4 subnet has how many usable host addresses?",
+            "status": "correct",
+            "user_answer_indexes": [
+                0
+            ],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [
+                "30"
+            ],
+            "correct_answer_text": [
+                "30"
+            ],
+            "explanation": "/27 provides 30 usable IPv4 host addresses."
+        },
+        {
+            "question_number": 19,
+            "question_id": 751,
+            "question": "Practice item 751: What best describes SNMP in IP Services?",
+            "status": "correct",
+            "user_answer_indexes": [
+                3
+            ],
+            "correct_answer_indexes": [
+                3
+            ],
+            "user_answer_text": [
+                "supports network monitoring and management"
+            ],
+            "correct_answer_text": [
+                "supports network monitoring and management"
+            ],
+            "explanation": "SNMP supports network monitoring and management."
+        },
+        {
+            "question_number": 20,
+            "question_id": 953,
+            "question": "Practice item 953: Two switches are connected by redundant links and the MAC table is unstable. Which feature should be checked first?",
+            "status": "correct",
+            "user_answer_indexes": [
+                3
+            ],
+            "correct_answer_indexes": [
+                3
+            ],
+            "user_answer_text": [
+                "STP"
+            ],
+            "correct_answer_text": [
+                "STP"
+            ],
+            "explanation": "STP prevents Layer 2 loops that can cause MAC flapping."
+        },
+        {
+            "question_number": 21,
+            "question_id": 833,
+            "question": "Practice item 833: A REST API request receives HTTP 401. What does this usually indicate?",
+            "status": "correct",
+            "user_answer_indexes": [
+                0
+            ],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [
+                "Authentication failed or missing credentials"
+            ],
+            "correct_answer_text": [
+                "Authentication failed or missing credentials"
+            ],
+            "explanation": "HTTP 401 indicates authentication is required or failed."
+        },
+        {
+            "question_number": 22,
+            "question_id": 119,
+            "question": "In CCNA IP Connectivity, what is the primary purpose of floating static route?",
+            "status": "correct",
+            "user_answer_indexes": [
+                3
+            ],
+            "correct_answer_indexes": [
+                3
+            ],
+            "user_answer_text": [
+                "has a higher administrative distance for backup use"
+            ],
+            "correct_answer_text": [
+                "has a higher administrative distance for backup use"
+            ],
+            "explanation": "floating static route has a higher administrative distance for backup use."
+        },
+        {
+            "question_number": 23,
+            "question_id": 802,
+            "question": "Practice item 802: Which command would you use to verify NAT translations?",
+            "status": "correct",
+            "user_answer_indexes": [
+                0
+            ],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [
+                "show ip nat translations"
+            ],
+            "correct_answer_text": [
+                "show ip nat translations"
+            ],
+            "explanation": "show ip nat translations displays active NAT mappings."
+        },
+        {
+            "question_number": 24,
+            "question_id": 586,
+            "question": "Practice item 586: Which command would you use to verify MAC address table entries?",
+            "status": "correct",
+            "user_answer_indexes": [
+                3
+            ],
+            "correct_answer_indexes": [
+                3
+            ],
+            "user_answer_text": [
+                "show mac address-table"
+            ],
+            "correct_answer_text": [
+                "show mac address-table"
+            ],
+            "explanation": "show mac address-table displays learned MAC addresses."
+        },
+        {
+            "question_number": 25,
+            "question_id": 151,
+            "question": "In CCNA IP Services, what is the primary purpose of TFTP?",
+            "status": "correct",
+            "user_answer_indexes": [
+                1
+            ],
+            "correct_answer_indexes": [
+                1
+            ],
+            "user_answer_text": [
+                "simple file transfer often used for network images"
+            ],
+            "correct_answer_text": [
+                "simple file transfer often used for network images"
+            ],
+            "explanation": "TFTP simple file transfer often used for network images."
+        },
+        {
+            "question_number": 26,
+            "question_id": 571,
+            "question": "Practice item 571: What best describes RESTCONF in Automation and Programmability?",
+            "status": "correct",
+            "user_answer_indexes": [
+                2
+            ],
+            "correct_answer_indexes": [
+                2
+            ],
+            "user_answer_text": [
+                "exposes YANG-modeled data through REST-like APIs"
+            ],
+            "correct_answer_text": [
+                "exposes YANG-modeled data through REST-like APIs"
+            ],
+            "explanation": "RESTCONF exposes YANG-modeled data through REST-like APIs."
+        },
+        {
+            "question_number": 27,
+            "question_id": 49,
+            "question": "Which HTTP method is commonly used to create a new resource?",
+            "status": "correct",
+            "user_answer_indexes": [
+                1
+            ],
+            "correct_answer_indexes": [
+                1
+            ],
+            "user_answer_text": [
+                "POST"
+            ],
+            "correct_answer_text": [
+                "POST"
+            ],
+            "explanation": "POST commonly creates resources or submits data."
+        },
+        {
+            "question_number": 28,
+            "question_id": 512,
+            "question": "Practice item 512: Which technology or concept provides faster STP convergence?",
+            "status": "correct",
+            "user_answer_indexes": [
+                3
+            ],
+            "correct_answer_indexes": [
+                3
+            ],
+            "user_answer_text": [
+                "RSTP"
+            ],
+            "correct_answer_text": [
+                "RSTP"
+            ],
+            "explanation": "The concept is RSTP."
+        },
+        {
+            "question_number": 29,
+            "question_id": 537,
+            "question": "Practice item 537: Which two items belong to the Network Access domain? Choose two.",
+            "status": "incorrect",
+            "user_answer_indexes": [
+                0,
+                1
+            ],
+            "correct_answer_indexes": [
+                1,
+                2
+            ],
+            "user_answer_text": [
+                "EtherChannel",
+                "access VLAN"
+            ],
+            "correct_answer_text": [
+                "access VLAN",
+                "RSTP"
+            ],
+            "explanation": "access VLAN and RSTP are associated with Network Access."
+        },
+        {
+            "question_number": 30,
+            "question_id": 160,
+            "question": "Which term best matches this description: limits or controls MAC addresses on a switchport?",
+            "status": "correct",
+            "user_answer_indexes": [
+                2
+            ],
+            "correct_answer_indexes": [
+                2
+            ],
+            "user_answer_text": [
+                "port security"
+            ],
+            "correct_answer_text": [
+                "port security"
+            ],
+            "explanation": "The correct term is port security."
+        },
+        {
+            "question_number": 31,
+            "question_id": 5,
+            "question": "What is the default administrative distance of OSPF?",
+            "status": "correct",
+            "user_answer_indexes": [
+                2
+            ],
+            "correct_answer_indexes": [
+                2
+            ],
+            "user_answer_text": [
+                "110"
+            ],
+            "correct_answer_text": [
+                "110"
+            ],
+            "explanation": "OSPF has a default administrative distance of 110."
+        },
+        {
+            "question_number": 32,
+            "question_id": 159,
+            "question": "In CCNA Security Fundamentals, what is the primary purpose of port security?",
+            "status": "correct",
+            "user_answer_indexes": [
+                2
+            ],
+            "correct_answer_indexes": [
+                2
+            ],
+            "user_answer_text": [
+                "limits or controls MAC addresses on a switchport"
+            ],
+            "correct_answer_text": [
+                "limits or controls MAC addresses on a switchport"
+            ],
+            "explanation": "port security limits or controls MAC addresses on a switchport."
+        },
+        {
+            "question_number": 33,
+            "question_id": 488,
+            "question": "Practice item 488: Which technology or concept represents structured data with key-value pairs and arrays?",
+            "status": "correct",
+            "user_answer_indexes": [
+                1
+            ],
+            "correct_answer_indexes": [
+                1
+            ],
+            "user_answer_text": [
+                "JSON"
+            ],
+            "correct_answer_text": [
+                "JSON"
+            ],
+            "explanation": "The concept is JSON."
+        },
+        {
+            "question_number": 34,
+            "question_id": 166,
+            "question": "Which term best matches this description: centralizes authentication, authorization, and accounting?",
+            "status": "correct",
+            "user_answer_indexes": [
+                1
+            ],
+            "correct_answer_indexes": [
+                1
+            ],
+            "user_answer_text": [
+                "AAA"
+            ],
+            "correct_answer_text": [
+                "AAA"
+            ],
+            "explanation": "The correct term is AAA."
+        },
+        {
+            "question_number": 35,
+            "question_id": 243,
+            "question": "Practice item 243: Which two items belong to the Network Fundamentals domain? Choose two.",
+            "status": "incorrect",
+            "user_answer_indexes": [
+                0,
+                1
+            ],
+            "correct_answer_indexes": [
+                1,
+                2
+            ],
+            "user_answer_text": [
+                "router",
+                "server"
+            ],
+            "correct_answer_text": [
+                "server",
+                "Layer 2 switch"
+            ],
+            "explanation": "server and Layer 2 switch are associated with Network Fundamentals."
+        },
+        {
+            "question_number": 36,
+            "question_id": 553,
+            "question": "Practice item 553: What best describes YAML in Automation and Programmability?",
+            "status": "correct",
+            "user_answer_indexes": [
+                0
+            ],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [
+                "is a human-readable structured data format"
+            ],
+            "correct_answer_text": [
+                "is a human-readable structured data format"
+            ],
+            "explanation": "YAML is a human-readable structured data format."
+        },
+        {
+            "question_number": 37,
+            "question_id": 447,
+            "question": "Practice item 447: Which two items belong to the IP Connectivity domain? Choose two.",
+            "status": "incorrect",
+            "user_answer_indexes": [
+                0,
+                1
+            ],
+            "correct_answer_indexes": [
+                0,
+                3
+            ],
+            "user_answer_text": [
+                "default route",
+                "longest prefix match"
+            ],
+            "correct_answer_text": [
+                "default route",
+                "OSPF"
+            ],
+            "explanation": "default route and OSPF are associated with IP Connectivity."
+        },
+        {
+            "question_number": 38,
+            "question_id": 107,
+            "question": "In CCNA Network Access, what is the primary purpose of BPDU Guard?",
+            "status": "correct",
+            "user_answer_indexes": [
+                0
+            ],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [
+                "err-disables a PortFast port that receives a BPDU"
+            ],
+            "correct_answer_text": [
+                "err-disables a PortFast port that receives a BPDU"
+            ],
+            "explanation": "BPDU Guard err-disables a PortFast port that receives a BPDU."
+        },
+        {
+            "question_number": 39,
+            "question_id": 421,
+            "question": "Practice item 421: What best describes DHCP in IP Services?",
+            "status": "correct",
+            "user_answer_indexes": [
+                0
+            ],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [
+                "assigns IP configuration dynamically"
+            ],
+            "correct_answer_text": [
+                "assigns IP configuration dynamically"
+            ],
+            "explanation": "DHCP assigns IP configuration dynamically."
+        },
+        {
+            "question_number": 40,
+            "question_id": 494,
+            "question": "Practice item 494: Which technology or concept resolves names to addresses?",
+            "status": "correct",
+            "user_answer_indexes": [
+                3
+            ],
+            "correct_answer_indexes": [
+                3
+            ],
+            "user_answer_text": [
+                "DNS"
+            ],
+            "correct_answer_text": [
+                "DNS"
+            ],
+            "explanation": "The concept is DNS."
+        },
+        {
+            "question_number": 41,
+            "question_id": 245,
+            "question": "Practice item 245: A user can ping 8.8.8.8 but cannot browse to www.example.com. Which service is most suspect?",
+            "status": "correct",
+            "user_answer_indexes": [
+                2
+            ],
+            "correct_answer_indexes": [
+                2
+            ],
+            "user_answer_text": [
+                "DNS"
+            ],
+            "correct_answer_text": [
+                "DNS"
+            ],
+            "explanation": "Successful IP connectivity but failed hostname access often points to DNS."
+        },
+        {
+            "question_number": 42,
+            "question_id": 835,
+            "question": "Practice item 835: What best describes DHCP in IP Services?",
+            "status": "correct",
+            "user_answer_indexes": [
+                3
+            ],
+            "correct_answer_indexes": [
+                3
+            ],
+            "user_answer_text": [
+                "assigns IP configuration dynamically"
+            ],
+            "correct_answer_text": [
+                "assigns IP configuration dynamically"
+            ],
+            "explanation": "DHCP assigns IP configuration dynamically."
+        },
+        {
+            "question_number": 43,
+            "question_id": 881,
+            "question": "Practice item 881: A REST API request receives HTTP 401. What does this usually indicate?",
+            "status": "correct",
+            "user_answer_indexes": [
+                3
+            ],
+            "correct_answer_indexes": [
+                3
+            ],
+            "user_answer_text": [
+                "Authentication failed or missing credentials"
+            ],
+            "correct_answer_text": [
+                "Authentication failed or missing credentials"
+            ],
+            "explanation": "HTTP 401 indicates authentication is required or failed."
+        },
+        {
+            "question_number": 44,
+            "question_id": 339,
+            "question": "Practice item 339: Which two items belong to the IP Services domain? Choose two.",
+            "status": "incorrect",
+            "user_answer_indexes": [
+                0,
+                1
+            ],
+            "correct_answer_indexes": [
+                1,
+                3
+            ],
+            "user_answer_text": [
+                "SSH",
+                "DHCP"
+            ],
+            "correct_answer_text": [
+                "DHCP",
+                "NTP"
+            ],
+            "explanation": "DHCP and NTP are associated with IP Services."
+        },
+        {
+            "question_number": 45,
+            "question_id": 825,
+            "question": "Practice item 825: Which two items belong to the Automation and Programmability domain? Choose two.",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0,
+                3
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "YANG",
+                "JSON"
+            ],
+            "explanation": "JSON and YANG are associated with Automation and Programmability."
+        },
+        {
+            "question_number": 46,
+            "question_id": 268,
+            "question": "Practice item 268: Which command would you use to verify EtherChannel status?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                3
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "show etherchannel summary"
+            ],
+            "explanation": "show etherchannel summary summarizes port-channel state."
+        },
+        {
+            "question_number": 47,
+            "question_id": 275,
+            "question": "Practice item 275: A switchport configured with BPDU Guard goes err-disabled after connecting another switch. Why?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                1
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "The port received a BPDU"
+            ],
+            "explanation": "BPDU Guard can err-disable an edge port that receives BPDUs."
+        },
+        {
+            "question_number": 48,
+            "question_id": 987,
+            "question": "Practice item 987: Which two items belong to the IP Connectivity domain? Choose two.",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                1,
+                2
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "administrative distance",
+                "OSPF"
+            ],
+            "explanation": "OSPF and administrative distance are associated with IP Connectivity."
+        },
+        {
+            "question_number": 49,
+            "question_id": 203,
+            "question": "Which Cisco IOS command is best used to verify EtherChannel status?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                3
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "show etherchannel summary"
+            ],
+            "explanation": "show etherchannel summary summarizes port-channel state."
+        },
+        {
+            "question_number": 50,
+            "question_id": 127,
+            "question": "In CCNA IP Connectivity, what is the primary purpose of metric?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                1
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "selects the best route within the same routing protocol"
+            ],
+            "explanation": "metric selects the best route within the same routing protocol."
+        },
+        {
+            "question_number": 51,
+            "question_id": 781,
+            "question": "Practice item 781: What best describes NETCONF in Automation and Programmability?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                3
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "uses structured data models for configuration"
+            ],
+            "explanation": "NETCONF uses structured data models for configuration."
+        },
+        {
+            "question_number": 52,
+            "question_id": 538,
+            "question": "Practice item 538: Which command would you use to verify access lists?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "show access-lists"
+            ],
+            "explanation": "show access-lists displays ACL entries and counters."
+        },
+        {
+            "question_number": 53,
+            "question_id": 126,
+            "question": "Which term best matches this description: selects between routes from different sources?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                2
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "administrative distance"
+            ],
+            "explanation": "The correct term is administrative distance."
+        },
+        {
+            "question_number": 54,
+            "question_id": 353,
+            "question": "Practice item 353: A trunk allows VLANs 10 and 20, but VLAN 30 traffic is not passing. What is the likely cause?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                3
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "VLAN 30 is not allowed on the trunk"
+            ],
+            "explanation": "Trunks only carry VLANs allowed on the trunk and existing on the switch."
+        },
+        {
+            "question_number": 55,
+            "question_id": 369,
+            "question": "Practice item 369: Which two items belong to the IP Services domain? Choose two.",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                1,
+                3
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "SNMP",
+                "DNS"
+            ],
+            "explanation": "SNMP and DNS are associated with IP Services."
+        },
+        {
+            "question_number": 56,
+            "question_id": 174,
+            "question": "Which term best matches this description: creates protected connectivity across an untrusted network?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                2
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "VPN"
+            ],
+            "explanation": "The correct term is VPN."
+        },
+        {
+            "question_number": 57,
+            "question_id": 726,
+            "question": "Practice item 726: A /27 IPv4 subnet has how many usable host addresses?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "30"
+            ],
+            "explanation": "/27 provides 30 usable IPv4 host addresses."
+        },
+        {
+            "question_number": 58,
+            "question_id": 426,
+            "question": "Practice item 426: A /28 IPv4 subnet has how many usable host addresses?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "14"
+            ],
+            "explanation": "/28 provides 14 usable IPv4 host addresses."
+        },
+        {
+            "question_number": 59,
+            "question_id": 870,
+            "question": "Practice item 870: A /28 IPv4 subnet has how many usable host addresses?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "14"
+            ],
+            "explanation": "/28 provides 14 usable IPv4 host addresses."
+        },
+        {
+            "question_number": 60,
+            "question_id": 639,
+            "question": "Practice item 639: Which two items belong to the IP Services domain? Choose two.",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0,
+                1
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "SNMP",
+                "NTP"
+            ],
+            "explanation": "NTP and SNMP are associated with IP Services."
+        },
+        {
+            "question_number": 61,
+            "question_id": 517,
+            "question": "Practice item 517: What best describes Layer 2 switch in Network Fundamentals?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                2
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "forwards Ethernet frames using MAC addresses"
+            ],
+            "explanation": "Layer 2 switch forwards Ethernet frames using MAC addresses."
+        },
+        {
+            "question_number": 62,
+            "question_id": 765,
+            "question": "Practice item 765: Which two items belong to the Network Access domain? Choose two.",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                1,
+                2
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "RSTP",
+                "PortFast"
+            ],
+            "explanation": "PortFast and RSTP are associated with Network Access."
+        },
+        {
+            "question_number": 63,
+            "question_id": 740,
+            "question": "Practice item 740: Which technology or concept allows edge ports to transition quickly to forwarding?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "PortFast"
+            ],
+            "explanation": "The concept is PortFast."
+        },
+        {
+            "question_number": 64,
+            "question_id": 564,
+            "question": "Practice item 564: A /25 IPv4 subnet has how many usable host addresses?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "126"
+            ],
+            "explanation": "/25 provides 126 usable IPv4 host addresses."
+        },
+        {
+            "question_number": 65,
+            "question_id": 178,
+            "question": "Which term best matches this description: represents structured data with key-value pairs and arrays?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                1
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "JSON"
+            ],
+            "explanation": "The correct term is JSON."
+        },
+        {
+            "question_number": 66,
+            "question_id": 890,
+            "question": "Practice item 890: Which technology or concept collects device log messages?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                1
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "Syslog"
+            ],
+            "explanation": "The concept is Syslog."
+        },
+        {
+            "question_number": 67,
+            "question_id": 455,
+            "question": "Practice item 455: A user can ping 8.8.8.8 but cannot browse to www.example.com. Which service is most suspect?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                3
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "DNS"
+            ],
+            "explanation": "Successful IP connectivity but failed hostname access often points to DNS."
+        },
+        {
+            "question_number": 68,
+            "question_id": 289,
+            "question": "Practice item 289: What best describes PAT in IP Services?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                2
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "translates many inside hosts using ports"
+            ],
+            "explanation": "PAT translates many inside hosts using ports."
+        },
+        {
+            "question_number": 69,
+            "question_id": 10,
+            "question": "Which protocol is used by HTTPS?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "TCP/443"
+            ],
+            "explanation": "HTTPS normally uses TCP port 443."
+        },
+        {
+            "question_number": 70,
+            "question_id": 31,
+            "question": "Which subnet mask corresponds to /30?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                2
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "255.255.255.252"
+            ],
+            "explanation": "/30 equals 255.255.255.252."
+        },
+        {
+            "question_number": 71,
+            "question_id": 463,
+            "question": "Practice item 463: What best describes TCP in Network Fundamentals?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "provides reliable transport with acknowledgments"
+            ],
+            "explanation": "TCP provides reliable transport with acknowledgments."
+        },
+        {
+            "question_number": 72,
+            "question_id": 387,
+            "question": "Practice item 387: Which two items belong to the Security Fundamentals domain? Choose two.",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                1,
+                3
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "Dynamic ARP Inspection",
+                "AAA"
+            ],
+            "explanation": "AAA and Dynamic ARP Inspection are associated with Security Fundamentals."
+        },
+        {
+            "question_number": 73,
+            "question_id": 360,
+            "question": "Practice item 360: A /28 IPv4 subnet has how many usable host addresses?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "14"
+            ],
+            "explanation": "/28 provides 14 usable IPv4 host addresses."
+        },
+        {
+            "question_number": 74,
+            "question_id": 932,
+            "question": "Practice item 932: Which technology or concept selects the best route within the same routing protocol?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                1
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "metric"
+            ],
+            "explanation": "The concept is metric."
+        },
+        {
+            "question_number": 75,
+            "question_id": 724,
+            "question": "Practice item 724: Which command would you use to verify VLAN membership?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                1
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "show vlan brief"
+            ],
+            "explanation": "show vlan brief displays VLANs and access port membership."
+        },
+        {
+            "question_number": 76,
+            "question_id": 589,
+            "question": "Practice item 589: What best describes longest prefix match in IP Connectivity?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "selects the most specific matching route"
+            ],
+            "explanation": "longest prefix match selects the most specific matching route."
+        },
+        {
+            "question_number": 77,
+            "question_id": 270,
+            "question": "Practice item 270: A /27 IPv4 subnet has how many usable host addresses?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "30"
+            ],
+            "explanation": "/27 provides 30 usable IPv4 host addresses."
+        },
+        {
+            "question_number": 78,
+            "question_id": 840,
+            "question": "Practice item 840: A /27 IPv4 subnet has how many usable host addresses?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "30"
+            ],
+            "explanation": "/27 provides 30 usable IPv4 host addresses."
+        },
+        {
+            "question_number": 79,
+            "question_id": 808,
+            "question": "Practice item 808: Which command would you use to verify trunk interfaces?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "show interfaces trunk"
+            ],
+            "explanation": "show interfaces trunk displays trunking status, native VLAN, and allowed VLANs."
+        },
+        {
+            "question_number": 80,
+            "question_id": 893,
+            "question": "Practice item 893: A user can ping 8.8.8.8 but cannot browse to www.example.com. Which service is most suspect?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                3
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "DNS"
+            ],
+            "explanation": "Successful IP connectivity but failed hostname access often points to DNS."
+        },
+        {
+            "question_number": 81,
+            "question_id": 735,
+            "question": "Practice item 735: Which two items belong to the Network Fundamentals domain? Choose two.",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                2,
+                3
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "Layer 3 switch",
+                "firewall"
+            ],
+            "explanation": "Layer 3 switch and firewall are associated with Network Fundamentals."
+        },
+        {
+            "question_number": 82,
+            "question_id": 364,
+            "question": "Practice item 364: Which command would you use to verify configured routing protocols?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                1
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "show ip protocols"
+            ],
+            "explanation": "show ip protocols summarizes active routing protocol configuration."
+        },
+        {
+            "question_number": 83,
+            "question_id": 763,
+            "question": "Practice item 763: What best describes router in Network Fundamentals?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "forwards packets between IP networks"
+            ],
+            "explanation": "router forwards packets between IP networks."
+        },
+        {
+            "question_number": 84,
+            "question_id": 657,
+            "question": "Practice item 657: Which two items belong to the Security Fundamentals domain? Choose two.",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                2,
+                3
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "AAA",
+                "standard ACL"
+            ],
+            "explanation": "standard ACL and AAA are associated with Security Fundamentals."
+        },
+        {
+            "question_number": 85,
+            "question_id": 249,
+            "question": "Practice item 249: Which two items belong to the Network Fundamentals domain? Choose two.",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                1,
+                2
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "server",
+                "access point"
+            ],
+            "explanation": "server and access point are associated with Network Fundamentals."
+        },
+        {
+            "question_number": 86,
+            "question_id": 474,
+            "question": "Practice item 474: A /29 IPv4 subnet has how many usable host addresses?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "6"
+            ],
+            "explanation": "/29 provides 6 usable IPv4 host addresses."
+        },
+        {
+            "question_number": 87,
+            "question_id": 449,
+            "question": "Practice item 449: A PC has an APIPA address 169.254.10.20. What is the most likely problem?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "The PC did not receive a DHCP lease"
+            ],
+            "explanation": "APIPA normally indicates DHCP address assignment failed."
+        },
+        {
+            "question_number": 88,
+            "question_id": 891,
+            "question": "Practice item 891: Which two items belong to the Security Fundamentals domain? Choose two.",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                1,
+                2
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "AAA",
+                "port security"
+            ],
+            "explanation": "AAA and port security are associated with Security Fundamentals."
+        },
+        {
+            "question_number": 89,
+            "question_id": 484,
+            "question": "Practice item 484: Which command would you use to verify trunk interfaces?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                2
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "show interfaces trunk"
+            ],
+            "explanation": "show interfaces trunk displays trunking status, native VLAN, and allowed VLANs."
+        },
+        {
+            "question_number": 90,
+            "question_id": 283,
+            "question": "Practice item 283: What best describes floating static route in IP Connectivity?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                2
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "has a higher administrative distance for backup use"
+            ],
+            "explanation": "floating static route has a higher administrative distance for backup use."
+        },
+        {
+            "question_number": 91,
+            "question_id": 7,
+            "question": "Which command displays brief interface IP information on Cisco IOS?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "show ip interface brief"
+            ],
+            "explanation": "show ip interface brief lists interface status and IPv4 addresses."
+        },
+        {
+            "question_number": 92,
+            "question_id": 818,
+            "question": "Practice item 818: Which technology or concept selects the most specific matching route?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                2
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "longest prefix match"
+            ],
+            "explanation": "The concept is longest prefix match."
+        },
+        {
+            "question_number": 93,
+            "question_id": 231,
+            "question": "Which command creates VLAN 50 on a Cisco IOS switch?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "vlan 50"
+            ],
+            "explanation": "vlan 50 enters VLAN configuration mode for that VLAN."
+        },
+        {
+            "question_number": 94,
+            "question_id": 324,
+            "question": "Practice item 324: A /28 IPv4 subnet has how many usable host addresses?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "14"
+            ],
+            "explanation": "/28 provides 14 usable IPv4 host addresses."
+        },
+        {
+            "question_number": 95,
+            "question_id": 797,
+            "question": "Practice item 797: An SSH connection to a router fails, but console access works. Which area should be checked?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                2
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "VTY and SSH configuration"
+            ],
+            "explanation": "Remote CLI access depends on SSH, VTY lines, user/authentication, and reachability."
+        },
+        {
+            "question_number": 96,
+            "question_id": 616,
+            "question": "Practice item 616: Which command would you use to verify MAC address table entries?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                1
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "show mac address-table"
+            ],
+            "explanation": "show mac address-table displays learned MAC addresses."
+        },
+        {
+            "question_number": 97,
+            "question_id": 582,
+            "question": "Practice item 582: A /27 IPv4 subnet has how many usable host addresses?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "30"
+            ],
+            "explanation": "/27 provides 30 usable IPv4 host addresses."
+        },
+        {
+            "question_number": 98,
+            "question_id": 366,
+            "question": "Practice item 366: A /28 IPv4 subnet has how many usable host addresses?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "14"
+            ],
+            "explanation": "/28 provides 14 usable IPv4 host addresses."
+        },
+        {
+            "question_number": 99,
+            "question_id": 115,
+            "question": "In CCNA IP Connectivity, what is the primary purpose of default route?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                3
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "matches traffic when no more-specific route exists"
+            ],
+            "explanation": "default route matches traffic when no more-specific route exists."
+        },
+        {
+            "question_number": 100,
+            "question_id": 1,
+            "question": "Which OSI layer provides logical addressing and routing?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                2
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "Network"
+            ],
+            "explanation": "The Network layer provides Layer 3 logical addressing and routing."
+        },
+        {
+            "question_number": 101,
+            "question_id": 670,
+            "question": "Practice item 670: Which command would you use to verify LLDP neighbors?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "show lldp neighbors"
+            ],
+            "explanation": "show lldp neighbors displays LLDP-discovered neighbors."
+        },
+        {
+            "question_number": 102,
+            "question_id": 43,
+            "question": "Which wireless security mode is strongest among these choices?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                2
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "WPA2/WPA3"
+            ],
+            "explanation": "WPA2/WPA3 are stronger than WEP, WPA, or open authentication."
+        },
+        {
+            "question_number": 103,
+            "question_id": 291,
+            "question": "Practice item 291: Which two items belong to the Network Fundamentals domain? Choose two.",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                2,
+                3
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "Layer 2 switch",
+                "Layer 3 switch"
+            ],
+            "explanation": "Layer 3 switch and Layer 2 switch are associated with Network Fundamentals."
+        },
+        {
+            "question_number": 104,
+            "question_id": 938,
+            "question": "Practice item 938: Which technology or concept selects between routes from different sources?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                3
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "administrative distance"
+            ],
+            "explanation": "The concept is administrative distance."
+        },
+        {
+            "question_number": 105,
+            "question_id": 595,
+            "question": "Practice item 595: What best describes WLC in Network Access?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                1
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "manages lightweight access points"
+            ],
+            "explanation": "WLC manages lightweight access points."
+        },
+        {
+            "question_number": 106,
+            "question_id": 76,
+            "question": "Which term best matches this description: forwards packets between IP networks?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "router"
+            ],
+            "explanation": "The correct term is router."
+        },
+        {
+            "question_number": 107,
+            "question_id": 694,
+            "question": "Practice item 694: Which command would you use to verify OSPF neighbors?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                2
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "show ip ospf neighbor"
+            ],
+            "explanation": "show ip ospf neighbor shows OSPF adjacency state."
+        },
+        {
+            "question_number": 108,
+            "question_id": 600,
+            "question": "Practice item 600: A /29 IPv4 subnet has how many usable host addresses?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "6"
+            ],
+            "explanation": "/29 provides 6 usable IPv4 host addresses."
+        },
+        {
+            "question_number": 109,
+            "question_id": 110,
+            "question": "Which term best matches this description: prevents an unexpected root bridge on a port?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                2
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "Root Guard"
+            ],
+            "explanation": "The correct term is Root Guard."
+        },
+        {
+            "question_number": 110,
+            "question_id": 318,
+            "question": "Practice item 318: A /30 IPv4 subnet has how many usable host addresses?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "2"
+            ],
+            "explanation": "/30 provides 2 usable IPv4 host addresses."
+        },
+        {
+            "question_number": 111,
+            "question_id": 773,
+            "question": "Practice item 773: A NAT overload configuration exists but inside hosts cannot translate. What should be verified?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                1
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "Inside/outside NAT interface roles and ACL match"
+            ],
+            "explanation": "PAT requires correct inside/outside designation and matching source ACL."
+        },
+        {
+            "question_number": 112,
+            "question_id": 933,
+            "question": "Practice item 933: Which two items belong to the Security Fundamentals domain? Choose two.",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                1,
+                2
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "RADIUS",
+                "WPA2"
+            ],
+            "explanation": "RADIUS and WPA2 are associated with Security Fundamentals."
+        },
+        {
+            "question_number": 113,
+            "question_id": 618,
+            "question": "Practice item 618: A /26 IPv4 subnet has how many usable host addresses?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "62"
+            ],
+            "explanation": "/26 provides 62 usable IPv4 host addresses."
+        },
+        {
+            "question_number": 114,
+            "question_id": 457,
+            "question": "Practice item 457: What best describes Layer 2 switch in Network Fundamentals?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                3
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "forwards Ethernet frames using MAC addresses"
+            ],
+            "explanation": "Layer 2 switch forwards Ethernet frames using MAC addresses."
+        },
+        {
+            "question_number": 115,
+            "question_id": 462,
+            "question": "Practice item 462: A /27 IPv4 subnet has how many usable host addresses?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "30"
+            ],
+            "explanation": "/27 provides 30 usable IPv4 host addresses."
+        },
+        {
+            "question_number": 116,
+            "question_id": 305,
+            "question": "Practice item 305: Two switches are connected by redundant links and the MAC table is unstable. Which feature should be checked first?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "STP"
+            ],
+            "explanation": "STP prevents Layer 2 loops that can cause MAC flapping."
+        },
+        {
+            "question_number": 117,
+            "question_id": 581,
+            "question": "Practice item 581: A REST API request receives HTTP 401. What does this usually indicate?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                2
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "Authentication failed or missing credentials"
+            ],
+            "explanation": "HTTP 401 indicates authentication is required or failed."
+        },
+        {
+            "question_number": 118,
+            "question_id": 823,
+            "question": "Practice item 823: What best describes VPN in Security Fundamentals?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                3
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "creates protected connectivity across an untrusted network"
+            ],
+            "explanation": "VPN creates protected connectivity across an untrusted network."
+        },
+        {
+            "question_number": 119,
+            "question_id": 917,
+            "question": "Practice item 917: A trunk allows VLANs 10 and 20, but VLAN 30 traffic is not passing. What is the likely cause?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                3
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "VLAN 30 is not allowed on the trunk"
+            ],
+            "explanation": "Trunks only carry VLANs allowed on the trunk and existing on the switch."
+        },
+        {
+            "question_number": 120,
+            "question_id": 656,
+            "question": "Practice item 656: Which technology or concept carries traffic for multiple VLANs?",
+            "status": "unanswered",
+            "user_answer_indexes": [],
+            "correct_answer_indexes": [
+                0
+            ],
+            "user_answer_text": [],
+            "correct_answer_text": [
+                "trunk port"
+            ],
+            "explanation": "The concept is trunk port."
+        }
+    ]
+}

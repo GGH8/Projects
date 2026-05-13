@@ -1,0 +1,83 @@
+{
+  "Week 1 - Introduction to Networking": {
+    "Chapter 1 - Introduction to TCP/IP Networking": "",
+    "Chapter 2 - Fundamentals of Ethernet LANs": "",
+    "Chapter 3 - Fundamentals of WANs and IP Routing": "",
+    "Full Practice Exam 1": ""
+  },
+  "Week 2 - Implementing Ethernet LANs": {
+    "Chapter 4 - Using the Command-Line Interface": "",
+    "Chapter 5 - Analyzing Ethernet LAN Switching": "",
+    "Chapter 6 - Configuring Basic Switch Management": "",
+    "Chapter 7 - Configuring and Verifying Switch Interfaces": "",
+    "Chapter 1 - Introduction to TCP/IP Networking": ""
+  },
+  "Week 3 - Implementing VLANs and STP": {
+    "Chapter 8 - Implementing Ethernet Virtual LANs": "",
+    "Chapter 9 - Spanning Tree Protocol Concepts": "",
+    "Chapter 10 - RSTP and EtherChannel Configuration": "",
+    "Chapter 4 - Using the Command-Line Interface": ""
+  },
+  "Week 4 - IPv4 Addressing": {
+    "Chapter 11 - Perspectives on IPv4 Subnetting": "",
+    "Chapter 12 - Analyzing Classful IPv4 Networks": "",
+    "Chapter 13 - Analyzing Subnet Masks": "",
+    "Chapter 14 - Analyzing Existing Subnets": "",
+    "Chapter 15 - Subnet Design": "",
+    "Chapter 8 - Implementing Ethernet Virtual LANs": ""
+  },
+  "Week 5 - IPv4 Routing": {
+    "Chapter 16 - Operating Cisco Routers": "",
+    "Chapter 17 - Configuring IPv4 Addresses and Static Routes": "",
+    "Chapter 18 - IP Routing in the LAN": "",
+    "Chapter 19 - IP Addressing on Hosts": "",
+    "Chapter 20 - Troubleshooting IPv4 Routing": "",
+    "Chapter 21 - Understanding OSPF Concepts": ""
+  },
+  "Week 6 - OSPF": {
+    "Chapter 21 - Understanding OSPF Concepts": "",
+    "Chapter 22 - Implementing Basic OSPF Features": "",
+    "Chapter 23 - Implementing Optional OSPF Features": "",
+    "Chapter 24 - OSPF Neighbors and Route Selection": "",
+    "Chapter 11 - Perspectives on IPv4 Subnetting": "",
+    "Chapter 16 - Operating Cisco Routers": ""
+  },
+  "Week 7 - IP Version 6": {
+    "Chapter 25 - Fundamentals of IP Version 6": "",
+    "Chapter 26 - IPv6 Addressing and Subnetting": "",
+    "Chapter 27 - Implementing IPv6 Addressing on Routers": "",
+    "Chapter 28 - Implementing IPv6 Addressing on Hosts": "",
+    "Chapter 29 - Implementing IPv6 Routing": "",
+    "Chapter 21 - Understanding OSPF Concepts": ""
+  },
+  "Week 8 - Exam Updates and Appendixes": {
+    "Chapter 30 - CCNA 200-301 Official Cert Guide, Volume 1, Second Edition Exam Updates": "",
+    "Appendix A - Numeric Reference Tables": "",
+    "Appendix B - Exam Topics Cross-Reference": "",
+    "Appendix C - Answers to the Do I Know This Already? Quizzes": "",
+    "Appendix D - Practice for Chapter 12: Analyzing Classful IPv4 Networks": "",
+    "Appendix E - Practice for Chapter 13: Analyzing Subnet Masks": "",
+    "Appendix F - Practice for Chapter 14: Analyzing Existing Subnets": "",
+    "Appendix G - Practice for Chapter 15: Subnet Design": "",
+    "Appendix H - Practice for Chapter 25: Fundamentals of IP Version 6": "",
+    "Appendix I - Practice for Chapter 27: Implementing IPv6 Addressing on Routers": "",
+    "Appendix J - Study Planner": "",
+    "Appendix K - Topics from Previous Editions": "",
+    "Appendix L - LAN Troubleshooting": "",
+    "Appendix M - Variable-Length Subnet Masks": "",
+    "Chapter 25 - Fundamentals of IP Version 6": ""
+  },
+  "Week 9 - Final Review and Practice Exams": {
+    "Full Practice Exam 1": "",
+    "Full Practice Exam 2": "",
+    "Wrong Answer Review": "",
+    "Subnetting Review": "",
+    "IPv4 Routing Review": "",
+    "OSPF Review": "",
+    "IPv6 Review": "",
+    "Switching Review": "",
+    "VLAN and STP Review": "",
+    "Final Readiness Check": "",
+    "Chapter 30 - CCNA 200-301 Official Cert Guide, Volume 1, Second Edition Exam Updates": ""
+  }
+}
